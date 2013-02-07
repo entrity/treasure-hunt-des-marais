@@ -41,7 +41,8 @@ void usartOut(char data)
   UDR0 = data;
 }
 
-/* Read byte from USART. Handle packet. Returns true if packet is complete and checksum is OK.
+/* Read byte from USART. Add to packet if indicated.
+Returns true if packet is complete and checksum is OK.
 If checksum is wrong, restart packet and set b_deferUsartRx */
 bool usartInToPacket(packet_t * p_packet, char packetHeader)
 {

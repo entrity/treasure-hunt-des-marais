@@ -6,6 +6,7 @@
 #include "2013-common.h"
 #include <util/delay.h>
 
+#define IR_MODULATOR_PIN PB1
 #define INITIAL_RED_VALUE 10
 #define INITIAL_GREEN_VALUE 10
 #define INITIAL_BLUE_VALUE 10
@@ -69,6 +70,25 @@ void updateLeds()
     BLUE_VALUE_TCR += blueValueTarget > BLUE_VALUE_TCR ? 1 : -1;
 }
 
+inline void transmitPacket()
+{
+  char unusedChar; // char for clearing USART data register
+  // disable global interrupts
+  cli();
+  // reset counter
+  count = 0;
+  // clear USART data register
+  unusedChar = UDR0;
+  // set header for outgoing packet
+  packet.body[0] = PACKET_HEADER_FROM_WILLIAM;
+  // transmit
+  usartPacketOut(&packet);  
+  // clear USART data register
+  unusedChar = UDR0;
+  // enable global interrupts
+  sei();
+}
+
 /* Main function */
 int main(void)
 {
@@ -82,28 +102,17 @@ int main(void)
   init_rgb_leds();
   /* Enable global interrupts */
   sei();
-  /* set header for outgoing packet */
-  packet.body[0] = PACKET_HEADER_FROM_WILLIAM;
- 
+
   /* loop: receive from USART & update *ValueTarget values */
-  char unusedChar;
   while (1) {
     count ++;
     _delay_ms(3);
     updateLeds();
     if (count > 30) {
-      unusedChar = UDR0;
-      count = 0;
-      cli();
-      usartPacketOut(&packet);  
-      sei();
-      unusedChar = UDR0;
+      transmitPacket();
     }
   }
 }
-
-      // usartOut('d');
-
 
 ISR(USART_RX_vect) 
 {
