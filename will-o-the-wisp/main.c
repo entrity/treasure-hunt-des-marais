@@ -3,13 +3,8 @@
   USART TX -> resistor -> IR LED -> IR_MODULATOR_PIN
 */
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-#define F_CPU 16000000UL
-#define IR_MODULATION 38000
-#define BAUDRATE 2400
-#define IR_MODULATOR_PIN PB1
+#include "2013-common.h"
+#include <util/delay.h>
 
 #define INITIAL_RED_VALUE 10
 #define INITIAL_GREEN_VALUE 10
@@ -17,12 +12,6 @@
 #define RED_VALUE_TCR OCR0A
 #define GREEN_VALUE_TCR OCR0B
 #define BLUE_VALUE_TCR OCR2A
-
-#define INCOMING_PACKET_HEADER 'a'
-#define OUTGOING_PACKET_HEADER 'A'
-
-#include <util/delay.h>
-#include "../usart-functions.h"
 
 volatile unsigned char redValueTarget, greenValueTarget, blueValueTarget; // hold values read from USART
 packet_t packet;
@@ -94,7 +83,7 @@ int main(void)
   /* Enable global interrupts */
   sei();
   /* set header for outgoing packet */
-  packet.body[0] = OUTGOING_PACKET_HEADER;
+  packet.body[0] = PACKET_HEADER_FROM_WILLIAM;
  
   /* loop: receive from USART & update *ValueTarget values */
   char unusedChar;
@@ -118,7 +107,7 @@ int main(void)
 
 ISR(USART_RX_vect) 
 {
-  if (usartInToPacket(&packet, INCOMING_PACKET_HEADER)) {
+  if (usartInToPacket(&packet, PACKET_HEADER_TO_WILLIAM)) {
     redValueTarget = packet.body[1];
     greenValueTarget = packet.body[2];
     blueValueTarget = packet.body[3];
