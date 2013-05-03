@@ -2,6 +2,8 @@
 
 #define UBRR_VALUE 416 // baudrate 2400
 #define PACKET_LENGTH 4 // header, plus 3 data bytes
+#define USART_IN_READY (UCSR0A & (1<<RXC0))
+#define USART_OUT_READY (UCSR0A & (1<<UDRE0))
 
 typedef struct {
   uint8_t body[PACKET_LENGTH];
@@ -25,7 +27,7 @@ void init_usart()
 char usartIn()
 {
 	//Wait untill a data is available
-  while( !(UCSR0A & (1<<RXC0)) )
+  while( !(USART_IN_READY) )
   	;
   //Now USART has got data from host and is available is buffer
   return UDR0;
@@ -35,7 +37,7 @@ char usartIn()
 void usartOut(char data)
 {
 	// Wait until the transmitter is ready
-  while ( !(UCSR0A & (1<<UDRE0)) )
+  while ( !(USART_OUT_READY) )
   	;
   // Now write the data to USART buffer
   UDR0 = data;

@@ -21,7 +21,8 @@ TARGET = main
 # Programming hardware: type avrdude -c ?
 # to get a full listing.
 # AVRDUDE_PROGRAMMER = dapa
-AVRDUDE_PROGRAMMER = stk500v1     
+# AVRDUDE_PROGRAMMER = stk500v1
+AVRDUDE_PROGRAMMER = usbtiny
 # AVRDUDE_PROGRAMMER = dt006
 
 # AVRDUDE_PORT = /dev/tty.usbmodem621     # not really needed for usb 

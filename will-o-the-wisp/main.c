@@ -4,6 +4,7 @@
 */
 
 #include "2013-common.h"
+#include "usart-functions.h"
 #include <util/delay.h>
 
 #define IR_MODULATOR_PIN PB1
@@ -14,7 +15,10 @@
 #define GREEN_VALUE_TCR OCR0B
 #define BLUE_VALUE_TCR OCR2A
 
+inline void input();
+inline void output();
 volatile unsigned char redValueTarget, greenValueTarget, blueValueTarget; // hold values read from USART
+volatile bool flagToReadFromUsart = false;
 packet_t packet;
 char count;
 
@@ -105,20 +109,40 @@ int main(void)
 
   /* loop: receive from USART & update *ValueTarget values */
   while (1) {
-    count ++;
-    _delay_ms(3);
+    /* update rgb leds */
     updateLeds();
-    if (count > 30) {
-      transmitPacket();
-    }
+    /* Read from USART if flag is set */
+    input();
+    /* Transmit packet through USART */
+    output();
   }
+}
+
+void input()
+{
+  /* read from usart if usart rx flag is set */
+  if (flagToReadFromUsart) {
+    if (usartInToPacket(&packet,PACKET_HEADER_TO_WILLIAM)) {
+      redValueTarget = packet.body[1];
+      greenValueTarget = packet.body[2];
+      blueValueTarget = packet.body[3];
+    }
+    flagToReadFromUsart = false;
+  }
+  
+}
+
+void output()
+{
+  /* count and transmit */
+  _delay_ms(80);
+  // cli();
+  // UCSR0A |= (1 << UDRE0);
+  transmitPacket();
+  // sei();
 }
 
 ISR(USART_RX_vect) 
 {
-  if (usartInToPacket(&packet, PACKET_HEADER_TO_WILLIAM)) {
-    redValueTarget = packet.body[1];
-    greenValueTarget = packet.body[2];
-    blueValueTarget = packet.body[3];
-  }
+  flagToReadFromUsart = true;
 }

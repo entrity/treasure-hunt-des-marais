@@ -7,5 +7,3 @@
 
 #define PACKET_HEADER_TO_WILLIAM 'a'
 #define PACKET_HEADER_FROM_WILLIAM 'A'
-
-#include "usart-functions.h"
