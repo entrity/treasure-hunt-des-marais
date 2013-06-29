@@ -3,8 +3,8 @@
 # This Makefile includes the Arduino core sources. (Set ARDDIR here:)
 ARDDIR 				= /d/arduino
 # If you are working with a tiny AVR (e.g. attiny85), this Makefile requires that
-# you have the arduino-tiney core files (https://code.google.com/p/arduino-tiny/)
-# and the downloaded and the attiny pinout files downloaded.
+# you have the arduino-tiny core files (https://code.google.com/p/arduino-tiny/)
+# and the attiny pinout files downloaded.
 # Both sets of files should be placed at <arduino>/hardware/ such that
 # <arduino>/hardware/tiny/cores/tiny exists and <arduino>/hardware/attiny/variants
 # exists.
@@ -72,7 +72,7 @@ ifndef MCU
 MCU = atmega328p
 endif
 ifndef AVRDUDE_PROGRAMMER
-AVRDUDE_PROGRAMMER = stk500v1
+AVRDUDE_PROGRAMMER = usbtiny
 endif
 ifndef AVRDUDE_PORT
 AVRDUDE_PORT = com8
@@ -145,7 +145,8 @@ CFLAGS += -g -O$(OPT) \
 $(patsubst %,-I%,$(EXTRAINCDIRS))
 
 # These flags tell compiler/linker to drop references to some unused symbols,
-# which obviates the linker error about missing definition of __cxa_pure_virtual
+# which obviates the linker error about missing definition of __cxa_pure_virtual.
+# See post #7 on https://code.google.com/p/arduino/issues/detail?id=104
 CFLAGS += -ffunction-sections -fdata-sections -Wl,--gc-sections
 
 

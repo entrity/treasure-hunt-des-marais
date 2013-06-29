@@ -3,27 +3,30 @@
   USART TX -> resistor -> IR LED -> IR_MODULATOR_PIN
 */
 
+#define F_CPU 16000000UL
+
 #include "2013-common.h"
-#include "usart-functions.h"
+#include "../usart/usart-functions.h"
 #include <util/delay.h>
 
 #define IR_MODULATOR_PIN PB1
-#define INITIAL_RED_VALUE 10
-#define INITIAL_GREEN_VALUE 10
-#define INITIAL_BLUE_VALUE 10
+#define INITIAL_RED_VALUE 30
+#define INITIAL_GREEN_VALUE 70
+#define INITIAL_BLUE_VALUE 100
 #define RED_VALUE_TCR OCR0A
 #define GREEN_VALUE_TCR OCR0B
 #define BLUE_VALUE_TCR OCR2A
 
-inline void input();
-inline void output();
-volatile unsigned char redValueTarget, greenValueTarget, blueValueTarget; // hold values read from USART
+volatile unsigned char // hold values read from USART
+  redValueTarget = INITIAL_RED_VALUE,
+  greenValueTarget = INITIAL_GREEN_VALUE,
+  blueValueTarget = INITIAL_BLUE_VALUE;
 volatile bool flagToReadFromUsart = false;
 packet_t packet;
 char count;
 
 /* Set up timer 1 and PWM on ir-modulator pin (OC1A/PB1) */
-void init_ir_modulator()
+inline void init_ir_modulator()
 {
   // set pin as output
   DDRB |= (1 << IR_MODULATOR_PIN);
@@ -41,7 +44,7 @@ void init_ir_modulator()
 }
 
 /* Initialize timer 0 and timer 2 */
-void init_rgb_leds()
+inline void init_rgb_leds()
 {
   // set pins as output (OC0A, OC0B, OC2A)
   DDRD |= (1 << PD6); // OC0A (RED)
@@ -64,21 +67,22 @@ void init_rgb_leds()
 }
 
 /* Increment the colours of the leds toward the current value of c */
-void updateLeds()
+inline void updateLeds()
 {
   if (redValueTarget != RED_VALUE_TCR)
-    RED_VALUE_TCR += redValueTarget > RED_VALUE_TCR ? 1 : -1;
+    // RED_VALUE_TCR += redValueTarget > RED_VALUE_TCR ? 1 : -1;
+    RED_VALUE_TCR = redValueTarget;
   if (greenValueTarget != GREEN_VALUE_TCR)
-    GREEN_VALUE_TCR += greenValueTarget > GREEN_VALUE_TCR ? 1 : -1;
+    // GREEN_VALUE_TCR += greenValueTarget > GREEN_VALUE_TCR ? 1 : -1;
+    GREEN_VALUE_TCR = greenValueTarget;
   if (blueValueTarget != BLUE_VALUE_TCR)
-    BLUE_VALUE_TCR += blueValueTarget > BLUE_VALUE_TCR ? 1 : -1;
+    // BLUE_VALUE_TCR += blueValueTarget > BLUE_VALUE_TCR ? 1 : -1;
+    BLUE_VALUE_TCR = blueValueTarget;
 }
 
 inline void transmitPacket()
 {
-  char unusedChar; // char for clearing USART data register
-  // disable global interrupts
-  cli();
+  char unusedChar; // char for clearing USART data register  
   // reset counter
   count = 0;
   // clear USART data register
@@ -88,61 +92,50 @@ inline void transmitPacket()
   // transmit
   usartPacketOut(&packet);  
   // clear USART data register
-  unusedChar = UDR0;
-  // enable global interrupts
-  sei();
+  unusedChar = UDR0;  
 }
+
+void write()
+{
+  cli(); // disable global interrupts
+  transmitPacket();
+  sei(); // enable global interrupts
+}
+
 
 /* Main function */
 int main(void)
 {
-  /*set up carrier wave*/
-  init_ir_modulator();
-  /*set up usart*/
+  /* set up usart */
   init_usart();
   /* set up interrupt for USART RX */
   UCSR0B |= (1 << RXCIE0);
-  /* set up timers for leds on PWM */
+  /* init modulation for IR TX on IR_MODULATOR_PIN */
+  init_ir_modulator();
+  /* set up rgb leds */
   init_rgb_leds();
   /* Enable global interrupts */
   sei();
 
+  // enable pb0 for writing (for diagnostics)
+  DDRB |= (1 << 0);
+
   /* loop: receive from USART & update *ValueTarget values */
   while (1) {
-    /* update rgb leds */
+    /* Update rgb leds */
     updateLeds();
-    /* Read from USART if flag is set */
-    input();
     /* Transmit packet through USART */
-    output();
+    write();
+    _delay_ms(200);
   }
 }
 
-void input()
+ISR(USART_RX_vect)
 {
-  /* read from usart if usart rx flag is set */
-  if (flagToReadFromUsart) {
-    if (usartInToPacket(&packet,PACKET_HEADER_TO_WILLIAM)) {
-      redValueTarget = packet.body[1];
-      greenValueTarget = packet.body[2];
-      blueValueTarget = packet.body[3];
-    }
-    flagToReadFromUsart = false;
+  if (usartInToPacket(&packet,PACKET_HEADER_TO_WILLIAM,true)) {
+    redValueTarget = packet.body[1];
+    greenValueTarget = packet.body[2];
+    blueValueTarget = packet.body[3];
   }
-  
-}
-
-void output()
-{
-  /* count and transmit */
-  _delay_ms(80);
-  // cli();
-  // UCSR0A |= (1 << UDRE0);
-  transmitPacket();
-  // sei();
-}
-
-ISR(USART_RX_vect) 
-{
-  flagToReadFromUsart = true;
+  // PORTB ^= (1 << 0); // diagnostic
 }
