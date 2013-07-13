@@ -34,10 +34,14 @@ void cb_noteOn( unsigned char note, unsigned char volume ) { songBank.handleMidi
 /* Send data to song bank */
 void cb_noteOff( unsigned char note ) { songBank.handleMidiEvent(MIDI_NOTE_OFF, note); }
 
-void cb_songBankFailure() { transmitData(whiteTriplet); }
+void cb_songBankFailure() { setStatusLed(FAILURE_STATUS_LED); transmitData(whiteTriplet); }
 
-void cb_redSongComplete() { transmitData(redTriplet); }
-void cb_greenSongComplete() { transmitData(greenTriplet); }
-void cb_blueSongComplete() { transmitData(blueTriplet); }
-void cb_yellowSongComplete() { transmitData(yellowTriplet); }
-void cb_orangeSongComplete() { transmitData(orangeTriplet); }
+#define defineSongCompletionCallback(colour, COLOUR) \
+  void cb_##colour##SongComplete() \
+   { setStatusLed(COLOUR##_STATUS_LED); transmitData(colour##Triplet); }
+
+defineSongCompletionCallback(red, RED)
+defineSongCompletionCallback(green, GREEN)
+defineSongCompletionCallback(blue, BLUE)
+defineSongCompletionCallback(yellow, YELLOW)
+defineSongCompletionCallback(orange, ORANGE)
