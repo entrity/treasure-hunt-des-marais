@@ -3,6 +3,9 @@
 
 #define SONG_COUNT 5
 
+/* Set callbacks for songbank and songs */
+void setupSongHandling();
+
 // declare callbacks for midi listener
 void cb_noteOn(unsigned char note, unsigned char volume);
 void cb_noteOff(unsigned char note);

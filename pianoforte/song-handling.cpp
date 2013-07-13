@@ -1,6 +1,6 @@
 #include "song-handling.h"
-#include "midi-listener.h"
-#include "midi-song.h"
+#include <midi-listener.h>
+#include <midi-song.h>
 #include "main.h"
 
 #include "../colour-triplets.h"
@@ -16,8 +16,11 @@ MjMidi::Song * songPointers[] = { &red_song, &green_song, &blue_song, &yellow_so
 // build song bank
 MjMidi::SongBank songBank(&songPointers[0], SONG_COUNT);
 
+/* Set callbacks for songbank and songs */
 void setupSongHandling()
 {
+  /* set callbacks for songbank */
+  songBank.setCallbacks( NULL, cb_songBankFailure );
   /* set callbacks for individual songs */
   red_song.setCallbacks( cb_redSongComplete, NULL );
   green_song.setCallbacks( cb_greenSongComplete, NULL );

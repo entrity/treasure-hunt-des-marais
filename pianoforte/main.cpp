@@ -1,55 +1,36 @@
-#include "../2013-common.h"
-#include "main.h"
-#include "huart.h"
-#include "song-handling.h"
-#include "midi-listener.h"
-#include "midi-song.h"
-
 #include <Arduino.h>
 #include <SoftwareSerial.h>
-#include "../usart/usart-functions.h"
-
 #include <util/delay.h>
-#include <stdio.h>
+#include "../2013-common.h"
+#include "song-handling.h"
 
-// build stream for midi listening
-SoftwareSerial mySerial(10,11);
-
-// build handler for midi listening
+SoftwareSerial mySerial(2,3); // input to midiListener
 MidiListener midiListener(mySerial, cb_noteOn, cb_noteOff);
 
-// USART
-FILE * uart_output;
-
-int main()
+void setup()
 {
-  DDRD |= (1 << 5);
-  PORTD |= (1<<5);
-
-  uart_init();
-  uart_output = fdevopen(uart_putchar, NULL);
-
-  /* start sw serial */
-  mySerial.begin(MIDI_BAUDRATE);
-
-  while (1) {
-    PORTD ^= (1<<5);
-    _delay_ms(500);
-    PORTD ^= (1<<5);
-    _delay_ms(500);
-    fprintf(uart_output, "hellow worl\n");
-    _delay_ms(100);
-    midiListener.poll();
-  }
+  /* start hw & sw serial */
+  Serial.begin(2400); // output
+  mySerial.begin(MIDI_BAUDRATE); // input
+  /* set up song and songbank callbacks */
+  setupSongHandling();
+  /* setup status leds for debugging */
 }
 
-void transmitData(char triplet[])
+void loop()
 {
-  uart_putchar(PACKET_HEADER_TO_WILLIAM, NULL);
-  char checksum = PACKET_HEADER_TO_WILLIAM;
-  for (int i=0; i < 3; i++) {
-    checksum += triplet[i];
-    uart_putchar(triplet[i], NULL);
-  }
-  uart_putchar(checksum, NULL);
+  /* Check MidiListener for data. If it is found, it passes the data
+  to the SongBank, which shall do one of the following:
+    - fire a songbank failure callback (transmitData)
+    - fire a song success callback (transmitData)
+    - register a note success for one or more songs but fire no callback
+    */
+  midiListener.poll();
+}
+
+/* Called by callbacks for songbank failure and song success.
+  Sends a packet to William. */
+void transmitData(char * p_triplet)
+{
+
 }
