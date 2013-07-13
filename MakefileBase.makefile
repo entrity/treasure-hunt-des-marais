@@ -105,7 +105,7 @@ ifndef NO_ARDUINO
 		EXTRAINCDIRS += $(ARDDIR)/hardware/attiny/variants/tiny8
 	endif
 	# add Arduino sources and include directories to PSRC and EXTRAINCDIRS
-	PSRC += $(filter-out $(ARDCOREDIR)/main.cpp, $(wildcard $(ARDCOREDIR)/*.cpp))
+	PSRC += $(wildcard $(ARDCOREDIR)/*.cpp)
 	SRC += $(wildcard $(ARDCOREDIR)/*.c)
 	EXTRAINCDIRS += $(ARDCOREDIR)
 	PSRC += $(foreach lib,$(ARDLIBS),$(ARDLIBDIR)/$(lib)/$(lib).cpp)
@@ -308,8 +308,10 @@ sizeafter:
 # Display compiler version information.
 gccversion : 
 	@$(CC) --version
-	@echo 
+	@echo ...................................................
+	@echo objects for building $(TARGET).elf are:
 	@echo $(OBJ)
+	@echo ---------------------------------------------------
 
 
 
