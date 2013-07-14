@@ -2,6 +2,7 @@
 #include <midi-listener.h>
 #include <midi-song.h>
 #include "main.h"
+#include <Arduino.h>
 
 #include "../colour-triplets.h"
 #include "sounds/red-song.c"
@@ -34,11 +35,11 @@ void cb_noteOn( unsigned char note, unsigned char volume ) { songBank.handleMidi
 /* Send data to song bank */
 void cb_noteOff( unsigned char note ) { songBank.handleMidiEvent(MIDI_NOTE_OFF, note); }
 
-void cb_songBankFailure() { setStatusLed(FAILURE_STATUS_LED); transmitData(whiteTriplet); }
+void cb_songBankFailure() { clearStatusLeds(); setStatusLed(FAILURE_STATUS_LED); transmitData(whiteTriplet); }
 
 #define defineSongCompletionCallback(colour, COLOUR) \
   void cb_##colour##SongComplete() \
-   { setStatusLed(COLOUR##_STATUS_LED); transmitData(colour##Triplet); }
+   { clearStatusLeds(); setStatusLed(COLOUR##_STATUS_LED); transmitData(colour##Triplet); }
 
 defineSongCompletionCallback(red, RED)
 defineSongCompletionCallback(green, GREEN)

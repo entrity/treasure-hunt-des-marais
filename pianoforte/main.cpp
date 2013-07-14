@@ -5,14 +5,14 @@
 #include "song-handling.h"
 #include <midi-listener.h>
 
-MidiListener midiListener(Serial, cb_noteOn, cb_noteOff); // input from midi keyboard
-SoftwareSerial mySerial(2,3); // output to William
+SoftwareSerial mySerial(2,3); // input from midi keyboard
+MidiListener midiListener(mySerial, cb_noteOn, cb_noteOff); // input from midi keyboard
 
 void setup()
 {
   /* start hw & sw serial */
-  Serial.begin(MIDI_BAUDRATE); // input
-  mySerial.begin(WILLIAM_BAUDRATE); // output
+  Serial.begin(WILLIAM_BAUDRATE); // output
+  mySerial.begin(MIDI_BAUDRATE); // input
   /* set up song and songbank callbacks */
   setupSongHandling();
   /* setup status leds for debugging */

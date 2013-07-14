@@ -13,4 +13,6 @@ void transmitData(char * p_triplet);
 
 inline void setStatusLed(uint8_t pin) { PORTC |= (1<<pin); }
 
+inline void clearStatusLeds() { PORTC &= ~(0b111111); }
+
 #endif
