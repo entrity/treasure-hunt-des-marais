@@ -3,4 +3,4 @@ MjMidi::event orange_song_midiEvents[] = {
 	{480,MIDI_NOTE_OFF, 65},
 };
 
-MjMidi::Song orange_song(&orange_song_midiEvents[0], 12);
+MjMidi::Song orange_song(&orange_song_midiEvents[0], 2);

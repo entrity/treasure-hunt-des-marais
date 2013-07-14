@@ -3,4 +3,4 @@ MjMidi::event green_song_midiEvents[] = {
 	{480,MIDI_NOTE_OFF, 66},
 };
 
-MjMidi::Song green_song(&green_song_midiEvents[0], 12);
+MjMidi::Song green_song(&green_song_midiEvents[0], 2);
