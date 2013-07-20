@@ -6,6 +6,7 @@
 #include "song-handling.h"
 #include "main.h"
 #include <midi-listener.h>
+#include "../init-ir-modulator.h"
 
 SoftwareSerial mySerial(2,3); // input from midi keyboard
 MidiListener midiListener(mySerial, cb_noteOn, cb_noteOff); // input from midi keyboard
@@ -22,6 +23,8 @@ void setup()
   setOutgoingPacket(whiteTriplet);
   /* setup status leds for debugging */
   DDRC = (1<<0)|(1<<1)|(1<<2)|(1<<3)|(1<<4)|(1<<5);
+  /* start 38KHz carrier wave for infrared TX */
+  init_ir_modulator();
 }
 
 void loop()
