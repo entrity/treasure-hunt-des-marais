@@ -95,6 +95,7 @@ ifndef NO_ARDUINO
 	else
 		ARDCOREDIR 		= $(ARDDIR)/hardware/arduino/cores/arduino
 	endif
+	# handle header file for arduino pinout
 	ifeq ($(MCU),atmega328p)
 		EXTRAINCDIRS += $(ARDDIR)/hardware/arduino/variants/standard
 	endif
@@ -203,6 +204,16 @@ AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
 #Run while cable attached or don't
 # AVRDUDE_FLAGS += -E reset #keep chip disabled while cable attached
 #AVRDUDE_FLAGS += -E noreset
+
+## You should really set the LFUSE variable in your local Makefile, not the base
+## 328p internal 8mhz oscillator / 8 (default)
+# LFUSE=0x62
+## 328p 16mhz crystal (arduino default)
+# LFUSE=0xff
+## tiny85 internal 8mhz oscillator / 8 (default)
+# LFUSE=0x62
+## tiny85 16 mhz crystal
+# LFUSE=0xff
 
 #AVRDUDE_WRITE_FLASH = -U lfuse:w:0x04:m #run with 8 Mhz clock
 
@@ -343,8 +354,9 @@ extcoff: $(TARGET).elf
 program: $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) -b $(BAUDRATE) $(AVRDUDE_WRITE_EEPROM) -vvvv
 
-
-
+# Set clock fuse bits (lfuse) to $(LFUSE)
+clockfuse:
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -U lfuse:w:$(LFUSE):m -b $(BAUDRATE) -vvvv
 
 # Create final output files (.hex, .eep) from ELF output file.
 %.hex: %.elf
