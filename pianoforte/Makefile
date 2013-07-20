@@ -11,6 +11,9 @@ PSRC = \
 	song-handling.cpp \
 	main.cpp
 
+SRC = \
+	../colour-triplets.c
+
 ARDLIBS = SoftwareSerial
 
 # LDFLAGS = -v 
