@@ -6,8 +6,10 @@
 #define F_CPU 16000000UL
 
 #include "2013-common.h"
+#include "colour-triplets.h"
 #include "../usart/usart-functions.h"
 #include <util/delay.h>
+#include "../init-ir-modulator.h"
 
 #define IR_MODULATOR_PIN PB1
 #define INITIAL_RED_VALUE 30
@@ -17,31 +19,16 @@
 #define GREEN_VALUE_TCR OCR0B
 #define BLUE_VALUE_TCR OCR2A
 
-volatile unsigned char // hold values read from USART
-  redValueTarget = INITIAL_RED_VALUE,
-  greenValueTarget = INITIAL_GREEN_VALUE,
-  blueValueTarget = INITIAL_BLUE_VALUE;
+// volatile unsigned char // hold values read from USART
+//   redValueTarget = INITIAL_RED_VALUE,
+//   greenValueTarget = INITIAL_GREEN_VALUE,
+//   blueValueTarget = INITIAL_BLUE_VALUE;
+#define redValueTarget (tx_packet.body[1])
+#define greenValueTarget (tx_packet.body[2])
+#define blueValueTarget (tx_packet.body[3])
 volatile bool flagToReadFromUsart = false;
-packet_t packet;
+packet_t rx_packet, tx_packet;
 char count;
-
-/* Set up timer 1 and PWM on ir-modulator pin (OC1A/PB1) */
-inline void init_ir_modulator()
-{
-  // set pin as output
-  DDRB |= (1 << IR_MODULATOR_PIN);
-  // toggle output pin on compare match
-  TCCR1A |= (1 << COM1A0);
-  // Fast PWM, using OCR1A for TOP
-  TCCR1A |= (3 << WGM10);
-  TCCR1B |= (3 << WGM12);
-  // set prescaler fcpu/8
-  TCCR1B |= (2 << CS10); // if this changes, the variable 'prescaler' needs to change too
-  // set compare register
-  int prescaler = 8; 
-  uint32_t divisor = (IR_MODULATION + 1) * 2 * prescaler;
-  OCR1A = (F_CPU / divisor) + (F_CPU % divisor >= divisor / 2 ? 1 : 0);
-}
 
 /* Initialize timer 0 and timer 2 */
 inline void init_rgb_leds()
@@ -86,11 +73,10 @@ inline void transmitPacket()
   // reset counter
   count = 0;
   // clear USART data register
-  unusedChar = UDR0;
-  // set header for outgoing packet
-  packet.body[0] = PACKET_HEADER_FROM_WILLIAM;
+  unusedChar = UDR0;  // set header for outgoing packet
+  tx_packet.body[0] = PACKET_HEADER_FROM_WILLIAM;
   // transmit
-  usartPacketOut(&packet);  
+  usartPacketOut(&tx_packet);  
   // clear USART data register
   unusedChar = UDR0;  
 }
@@ -130,12 +116,32 @@ int main(void)
   }
 }
 
+inline bool packetMatchesColourTriplet(char * triplet)
+{
+  return rx_packet.body[1] == triplet[0] &&
+  rx_packet.body[2] == triplet[1] &&
+  rx_packet.body[3] == triplet[2];
+}
+
+// return true if packet matches any array in colour-triplets.c
+bool packetMatchesAnyColourTriplet()
+{
+  int i;
+  for (i = 0; i < 6; i++) {
+    if (packetMatchesColourTriplet(colourTriplets[i]))
+      return true;
+  }
+  return false;
+}
+
 ISR(USART_RX_vect)
 {
-  if (usartInToPacket(&packet,PACKET_HEADER_TO_WILLIAM,true)) {
-    redValueTarget = packet.body[1];
-    greenValueTarget = packet.body[2];
-    blueValueTarget = packet.body[3];
+  int i;
+  if (usartInToPacket(&rx_packet,PACKET_HEADER_TO_WILLIAM,true)) {
+    if (packetMatchesAnyColourTriplet()) {
+      for (i = 1; i < 4; i++)
+        tx_packet.body[i] = rx_packet.body[i];
+    }
   }
   // PORTB ^= (1 << 0); // diagnostic
 }

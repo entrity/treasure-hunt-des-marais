@@ -7,5 +7,6 @@ extern char greenTriplet[];
 extern char blueTriplet[];
 extern char yellowTriplet[];
 extern char orangeTriplet[];
+extern char * colourTriplets[];
 
 #endif
