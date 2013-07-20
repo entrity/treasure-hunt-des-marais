@@ -1,4 +1,6 @@
 TARGET = main
+
+# Uncomment this line to use no Arduino files
 # NO_ARDUINO = 1
 
 MIDI_DIR = /c/MinGW/msys/1.0/home/MJ/Arduino/libraries/mj_midi
@@ -15,6 +17,9 @@ SRC = \
 	../colour-triplets.c
 
 ARDLIBS = SoftwareSerial
+
+# uncomment this line to have debug data sent to Serial out
+# CFLAGS = -D_DEBUG=1
 
 # LDFLAGS = -v 
 

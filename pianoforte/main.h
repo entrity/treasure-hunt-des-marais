@@ -8,8 +8,9 @@
 #define ORANGE_STATUS_LED   4
 #define FAILURE_STATUS_LED  5
 
-// declare method for IR TX
-void transmitData(char * p_triplet);
+void transmitPacket();
+
+void setOutgoingPacket(char * p_triplet);
 
 inline void setStatusLed(uint8_t pin) { PORTC |= (1<<pin); }
 
