@@ -358,6 +358,9 @@ program: $(TARGET).hex $(TARGET).eep
 clockfuse:
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -U lfuse:w:$(LFUSE):m -b $(BAUDRATE) -vvvv
 
+arduino_fuses:
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -U lfuse:w:0xff:m -U hfuse:w:0xde:m -U efuse:w:0x05:m -b $(BAUDRATE) -vvvv
+
 # Create final output files (.hex, .eep) from ELF output file.
 %.hex: %.elf
 	@echo
