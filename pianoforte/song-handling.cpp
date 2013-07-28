@@ -35,11 +35,11 @@ void cb_noteOn( unsigned char note, unsigned char volume ) { songBank.handleMidi
 /* Send data to song bank */
 void cb_noteOff( unsigned char note ) { songBank.handleMidiEvent(MIDI_NOTE_OFF, note); }
 
-void cb_songBankFailure() { clearStatusLeds(); setStatusLed(FAILURE_STATUS_LED); setOutgoingPacket(whiteTriplet); }
+void cb_songBankFailure() { setOutgoingPacket(WHITE); }
 
 #define defineSongCompletionCallback(colour, COLOUR) \
   void cb_##colour##SongComplete() \
-   { clearStatusLeds(); setStatusLed(COLOUR##_STATUS_LED); setOutgoingPacket(colour##Triplet); }
+   { setOutgoingPacket(COLOUR); }
 
 defineSongCompletionCallback(red, RED)
 defineSongCompletionCallback(green, GREEN)

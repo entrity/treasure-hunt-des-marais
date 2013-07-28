@@ -20,9 +20,10 @@ void setup()
   /* set up song and songbank callbacks */
   setupSongHandling();
   /* set initial outgoing packet (to William) */
-  setOutgoingPacket(whiteTriplet);
+  setOutgoingPacket(WHITE);
   /* setup status leds for debugging */
-  DDRC = (1<<0)|(1<<1)|(1<<2)|(1<<3)|(1<<4)|(1<<5);
+  DDRB |= (1<<0)|(1<<2)|(1<<3)|(1<<4)|(1<<5);
+  DDRD |= (1<<5)|(1<<6);
   /* start 38KHz carrier wave for infrared TX */
   init_ir_modulator();
 }
@@ -42,8 +43,9 @@ void loop()
 
 /* Called by callbacks for songbank failure and song success.
   Sends a packet to William. */
-void setOutgoingPacket(char * p_triplet)
+void setOutgoingPacket(uint8_t tripletIndex)
 {
+  char * p_triplet = colourTriplets[tripletIndex];
   outgoingPacket[0] = PACKET_HEADER_TO_WILLIAM;
   outgoingPacket[1] = p_triplet[0];
   outgoingPacket[2] = p_triplet[1];
@@ -57,6 +59,9 @@ void setOutgoingPacket(char * p_triplet)
     Serial.println((int) outgoingPacket[i]);
   Serial.println("===============");
 #endif
+  // set led
+  clearStatusLeds();
+  setStatusLed(tripletIndex);
 }
 
 void transmitPacket()

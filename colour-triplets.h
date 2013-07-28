@@ -9,4 +9,14 @@ extern char yellowTriplet[];
 extern char orangeTriplet[];
 extern char * colourTriplets[];
 
+enum {
+  WHITE,
+  RED,
+  GREEN,
+  BLUE,
+  YELLOW,
+  ORANGE,
+  VIOLET
+};
+
 #endif
