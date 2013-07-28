@@ -8,12 +8,16 @@
 #include <midi-listener.h>
 #include "../init-ir-modulator.h"
 
-SoftwareSerial mySerial(2,3); // input from midi keyboard
+SoftwareSerial mySerial(2,NULL); // input from midi keyboard
 MidiListener midiListener(mySerial, cb_noteOn, cb_noteOff); // input from midi keyboard
 uint8_t outgoingPacket[5];
+void buttonClicked();
+uint8_t outgoingPacketOverrideIndex = WHITE;
 
 void setup()
 {
+  /* button click interrupt */
+  attachInterrupt(1, buttonClicked, FALLING);
   /* start hw & sw serial */
   Serial.begin(WILLIAM_BAUDRATE); // output
   mySerial.begin(MIDI_BAUDRATE); // input
@@ -73,4 +77,12 @@ void transmitPacket()
 #else
     Serial.write(outgoingPacket[i]);
 #endif
+}
+
+void buttonClicked()
+{
+  outgoingPacketOverrideIndex += 1;
+  if (outgoingPacketOverrideIndex >= COLOUR_TRIPLET_N)
+    outgoingPacketOverrideIndex = 0;
+  setOutgoingPacket(outgoingPacketOverrideIndex);
 }
