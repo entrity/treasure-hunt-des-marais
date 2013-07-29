@@ -78,7 +78,13 @@ inline void transmitPacket()
   // transmit
   usartPacketOut(&tx_packet);  
   // clear USART data register
-  unusedChar = UDR0;  
+  unusedChar = UDR0;
+}
+
+inline void init_button_interrupt()
+{
+  EICRA |= (1<<ISC01); // falling edge on INT0 creates interrupt
+  EIMSK |= (1<<INT0); // enable interrupt request 0
 }
 
 void write()
@@ -100,6 +106,8 @@ int main(void)
   init_ir_modulator();
   /* set up rgb leds */
   init_rgb_leds();
+  /* set up button interrupt */
+  init_button_interrupt();
   /* Enable global interrupts */
   sei();
 
@@ -127,7 +135,7 @@ inline bool packetMatchesColourTriplet(char * triplet)
 bool packetMatchesAnyColourTriplet()
 {
   int i;
-  for (i = 0; i < 6; i++) {
+  for (i = 0; i < COLOUR_TRIPLET_N; i++) {
     if (packetMatchesColourTriplet(colourTriplets[i]))
       return true;
   }
@@ -144,4 +152,16 @@ ISR(USART_RX_vect)
     }
   }
   // PORTB ^= (1 << 0); // diagnostic
+}
+
+uint8_t outgoingPacketOverride;
+
+ISR(INT0_vect)
+{
+  int i;
+  outgoingPacketOverride ++;
+  if (outgoingPacketOverride >= COLOUR_TRIPLET_N)
+    outgoingPacketOverride = 0;
+  for (i = 1; i < 4; i++)
+    tx_packet.body[i] = colourTriplets[outgoingPacketOverride][i-1];
 }
