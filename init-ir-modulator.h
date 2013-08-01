@@ -9,18 +9,19 @@
 inline void init_ir_modulator()
 {
   // set pin as output
-  DDRB |= (1 << IR_MODULATOR_PIN);
+  DDRB |= (1 << PB1);
+  
+  // CTC, using OCR1A for TOP
+  TCCR1B = (1 << WGM12);
+  
   // toggle output pin on compare match
-  TCCR1A |= (1 << COM1A0);
-  // Fast PWM, using OCR1A for TOP
-  TCCR1A |= (3 << WGM10);
-  TCCR1B |= (3 << WGM12);
-  // set prescaler fcpu/8
-  TCCR1B |= (2 << CS10); // if this changes, the variable 'prescaler' needs to change too
+  TCCR1A = (1 << COM1A0);
+  
+  // set prescaler fcpu/1
+  TCCR1B |= (1 << CS10);
+  
   // set compare register
-  int prescaler = 8; 
-  uint32_t divisor = (IR_MODULATION + 1) * 2 * prescaler;
-  OCR1A = (F_CPU / divisor) + (F_CPU % divisor >= divisor / 2 ? 1 : 0);
+  OCR1A = 210;
 }
 
 #endif
