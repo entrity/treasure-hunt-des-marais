@@ -43,6 +43,7 @@ void loop()
   midiListener.poll();
   // remember 10ms delay between bytes? packets?
   transmitPacket();
+  _delay_ms(80);
 }
 
 /* Called by callbacks for songbank failure and song success.
