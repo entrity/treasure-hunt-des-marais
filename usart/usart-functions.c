@@ -52,3 +52,14 @@ void usartPacketOut(packet_t * p_packet)
   // output checksum
   usartOut(checksum);
 }
+
+bool packetMatchesColour(packet_t * packet, char * colourTriplet)
+{
+  int i;
+  for (i=0; i < 3; i++) {
+    char a = colourTriplet[i];
+    char b = ((char *) packet)[i+1];
+    if (a != b) { return false; }
+  }
+  return true;
+}

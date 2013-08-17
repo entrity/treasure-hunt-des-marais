@@ -29,6 +29,8 @@ char usartInWithoutCheck();
 /* Write a character to USART */
 void usartOut(char data);
 
+bool packetMatchesColour(packet_t * packet, char * colourTriplet);
+
 bool usartInToPacket(packet_t * p_packet, char packetHeader, bool skipCheck);
 void usartPacketOut(packet_t * p_packet);
 
