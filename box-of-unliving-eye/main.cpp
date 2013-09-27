@@ -1,5 +1,7 @@
 /*
-pin change interrupts set up on PORTD 2:0 (PCINT18:16 => PCIE2)
+Pin change interrupts set up on PORTD 2:0 (PCINT18:16 => PCIE2)
+LED pins are PORTB 2:0 (connected to buttons)
+Solenoid pin is PORTB 4
  */ 
 
 #define F_CPU 8000000L
@@ -36,8 +38,8 @@ inline void openBox()
 
 int main(void)
 {
-	DDRB = (1<<0)|(1<<1)|(1<<2); // enable output on led pins
-	DDRB = (1<<SOLENOID_PIN); // enable output on solenoid pin
+	DDRB |= (1<<0)|(1<<1)|(1<<2); // enable output on led pins
+	DDRB |= (1<<SOLENOID_PIN); // enable output on solenoid pin
 	
 	PCICR = (1<<PCIE2); // enable pin change interrupts on PCINT23..16
 	PCMSK2 = 0b111; // enable PCINT2 interrupts on 0,1,2
@@ -47,7 +49,7 @@ int main(void)
 	ledIndex = rand() % 3;
 	randomizeLed(); // set initial ledIndex value
 	
-    while(1) {}
+  while(1) {}
 }
 
 void buttonClicked()
@@ -66,11 +68,11 @@ void buttonClicked()
 /* Return -1 if no button is pressed. The pin number, otherwise. */
 signed char getButtonIndex()
 {
-	if (PORTD & (1<<0))
+	if (PIND & (1<<0))
 	 return 0;
-	if (PORTD & (1<<1))
+	if (PIND & (1<<1))
 	 return 1;
-	if (PORTD & (1<<2))
+	if (PIND & (1<<2))
 	 return 2;
 	return -1;
 }

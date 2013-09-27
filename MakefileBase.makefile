@@ -105,6 +105,9 @@ ifndef NO_ARDUINO
 	ifeq ($(MCU),attiny85)
 		EXTRAINCDIRS += $(ARDDIR)/hardware/attiny/variants/tiny8
 	endif
+	ifeq ($(MCU),attiny13)
+		EXTRAINCDIRS += $(ARDDIR)/hardware/attiny/variants/tiny8
+	endif
 	ifeq ($(MCU),attiny84)
 		EXTRAINCDIRS += $(ARDDIR)/hardware/attiny/variants/tiny14
 	endif
