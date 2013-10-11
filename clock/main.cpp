@@ -44,13 +44,13 @@ int main()
 
 void playSong()
 {
-  // for(int i=0; i < mySong_n; i++)
-  //   { playNote(mySong[i]); } 
+  for(int i=0; i < mySong_n; i++)
+    { playNote(mySong[i]); } 
 }
 
 void playNote(note_t note)
 {
-  unsigned int changes_n = 300;//note.duration / note.halfPrd;
+  unsigned int changes_n = note.duration / note.halfPrd;
   for(int i=0; i < changes_n; i++) {
     togglePiezo();
     delayMicroseconds(note.halfPrd);
