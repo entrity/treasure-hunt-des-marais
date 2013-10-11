@@ -5,7 +5,7 @@
 
 typedef struct {
   unsigned int halfPrd;   // us (microseconds)
-  unsigned int duration;  // us (microseconds)
+  unsigned long duration;  // us (microseconds)
 } note_t;
 
 #endif

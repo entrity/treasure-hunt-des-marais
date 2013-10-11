@@ -1,9 +1,9 @@
 MCU = attiny13
-MCU = attiny13
+MCU = attiny85
 
-# clock fuse: internal 9.6MHz osc
-LFUSE = 0x6A
-F_CPU = 9600000
+# clock fuse: internal 8MHz osc
+LFUSE = 0x62
+F_CPU = 8000000
 
 PSRC = main.cpp
 
