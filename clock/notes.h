@@ -8,6 +8,7 @@ typedef struct {
 } note_t;
 
 // definitions of frequencies for notes
+// http://www.richardbrice.net/midi_notes.htm
 #define A0       27.500 //* Lowest note on piano
 #define As0      29.135
 #define B0       30.867

@@ -11,8 +11,9 @@
 #include "notes.h"
 #include "mysong.h"
 
-#define PIEZO_PIN PB4
+#define CLOCK_PIN PB1
 #define BUTTON_PIN PB2
+#define PIEZO_PIN PB4
 
 bool piezoHigh = false;
 unsigned char piezoOnMask = (1<<PIEZO_PIN);
@@ -30,14 +31,12 @@ int main()
   CLKPR = (1<<CLKPCE);
   CLKPR &= 0b01110000;
   // enable falling external interrupt
-
+  MCUCR = (1<<ISC01);
+  GIMSK = (1<<INT0);
   sei();
   // enable output on PIEZO_PIN
   DDRB = (1<<PIEZO_PIN);
   // indefinite loop
-  playSong();
-  note_t note = { 1915, 1000000L };
-  playNote(note);
   while(1) {}
   return 0;
 }
@@ -59,9 +58,10 @@ void playNote(note_t note)
 }
 
 
-ISR(PCINT0_vect)
+ISR(INT0_vect)
 {
-  if (PINB & (1<<BUTTON_PIN)) playSong();
+  if (PINB & (1<<CLOCK_PIN)) playSong();
+  _delay_ms(500);
 }
 
 /* Delay for the given number of microseconds.  Assumes a 8 or 16 MHz clock. */

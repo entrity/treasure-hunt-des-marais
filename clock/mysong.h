@@ -5,22 +5,27 @@
 
 #define NOTE(freq, beats) { (1000000L/(2*freq)), (beats*1000000L/6) }
 
-int mySong_n = 13;
+int mySong_n = 15;
 
 note_t mySong[] = {
-  NOTE(C4, 2),
-  NOTE(D4, 2),
-  NOTE(E4, 4),
-  NOTE(C4, 2),
-  NOTE(E4, 2),
-  NOTE(D4, 4),
-  NOTE(C4, 2),
-  NOTE(D4, 2),
-  NOTE(E4, 2),
-  NOTE(C4, 2),
-  NOTE(E4, 2),
-  NOTE(D4, 2),
-  NOTE(C4, 4)
+  NOTE(E5, 1),
+  NOTE(F5, 1),
+  NOTE(G5, 1),
+  NOTE(E5, 1),
+  NOTE(F5, 1),
+  NOTE(G5, 1),
+  
+  NOTE(F5, 4),
+  NOTE(E5, 2),
+  
+  NOTE(D5, 1),
+  NOTE(E5, 1),
+  NOTE(F5, 1),
+  NOTE(D5, 1),
+  NOTE(E5, 1),
+  NOTE(F5, 1),
+  
+  NOTE(E5, 6)
 };
 
 #endif
