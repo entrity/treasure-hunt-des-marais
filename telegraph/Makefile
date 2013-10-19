@@ -1,7 +1,9 @@
 MCU = attiny85
 
-# clock fuse: internal 8MHz osc
-LFUSE = 0x62
+COLOUR_TRIPLET = redTriplet
+
+# clock fuse: 8 MHz internal osc
+LFUSE=0x62
 F_CPU = 8000000
 
 PSRC = main.cpp
@@ -10,9 +12,9 @@ SRC =
 
 CFLAGS = 
 
-EXTRAINCDIRS = ..
+EXTRAINCDIRS = 
 
-ARDLIBS =
 NO_ARDUINO = 1
+ARDLIBS = 
 
 include /d/dev/avr/treasure-hunt-2013/MakefileBase.makefile
