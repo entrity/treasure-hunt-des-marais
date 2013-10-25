@@ -1,6 +1,20 @@
 #include "morse_code.h"
+#include "strings.h"
+#include "operations.h"
+#include "definitions.h"
+
 #include <iostream>
 using namespace std;
+
+int fail = 0;
+char * charBuffer_p;
+uint8_t charBuffer_i;
+
+void test(bool b)
+{
+	cout << b << endl;
+	if (!b) fail ++;
+}
 
 void testMCodes()
 {
@@ -31,7 +45,7 @@ void test_InterpretMorse()
 
 	mCode_t a = { 'x', {0,1}, 2 };
 	char c = interpretMorse(&a);
-	cout << (c == 'a') << endl;
+	test(c == 'a');
 	
 	mCode_t a2 = { 'a', {1,0}, 2 };
 	c = interpretMorse(&a2);
@@ -46,9 +60,45 @@ void test_InterpretMorse()
 	cout << (c == 'z') << endl;
 }
 
+void toMorse_test()
+{
+	cout << "toMorse_test" << endl;
+
+	mCode_t * p;
+	p = toMorse('d');
+
+	test(p->code[0] == 1);
+	test(p->code[1] == 0);
+	test(p->code[1] == 0);
+	test(p->n == 3);
+	test(p->c == 'd');
+}
+
+void getMatchingInput_test()
+{
+	cout << "getMatchingInput_test" << endl;
+
+	char a[] = "july";
+	char b[] = "foo this matches none";
+	char c[] = "dew";
+	
+	charBuffer_p = a;
+	charBuffer_i = 4;
+	test(getMatchingInput() == 0);
+	charBuffer_p = b;
+	charBuffer_i = strlen(b);
+	test(getMatchingInput() == -1);
+	charBuffer_p = c;
+	charBuffer_i = strlen(c);
+	test(getMatchingInput() == 1);
+}
+
 int main()
 {
 	testMCodes();	
 	test_InterpretMorse();
+	toMorse_test();
+	getMatchingInput_test();
+	cout << "FAILURES: " << fail << endl;
 	return 0;
 }

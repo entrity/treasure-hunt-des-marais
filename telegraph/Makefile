@@ -18,3 +18,7 @@ NO_ARDUINO = 1
 ARDLIBS = 
 
 include /d/dev/avr/treasure-hunt-2013/MakefileBase.makefile
+
+test: test.cpp strings.cpp morse_codes.cpp
+	g++ test.cpp strings.cpp morse_codes.cpp
+	./a.out

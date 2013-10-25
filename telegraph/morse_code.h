@@ -17,6 +17,6 @@ inline bool mCodesMatch(mCode_t * a, mCode_t * b)
 
 char interpretMorse(mCode_t * data);
 
-const mCode_t * toMorse(char c);
+ mCode_t * toMorse(char c);
 
 #endif

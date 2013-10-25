@@ -42,7 +42,7 @@ char interpretMorse(mCode_t * data)
 	return NULL;
 }
 
-const mCode_t * toMorse(char c)
+ mCode_t * toMorse(char c)
 {
 	for (int i = 0; i < MORSE_CODES_N; i++) {
 		if (morseCodes[i].c == c) {
