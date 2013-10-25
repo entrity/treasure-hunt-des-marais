@@ -1,12 +1,24 @@
 #include "morse_code.h"
 #include "strings.h"
 #include "operations.h"
-#include "definitions.h"
 
 #include <iostream>
 using namespace std;
 
 #define NO_MORSE -2
+
+#define F_CPU 8000000UL
+#define PB5 ERROR // we don't want to ever touch this pin. It is RESET
+#define MORSE_BUFFER_LEN 10		// how many dot/dash to remember from trigger
+#define CHAR_BUFFER_LEN 30		// how many chars to remember from trigger
+#define DASH_THRESHOLD 333 // ms that distinguishes dot from dash
+#define RESET_PIN PCINT1
+#define TRIGGER_PIN PB2
+#define PIEZO_PIN PB3
+#define SOLENOID_PIN PB4
+#define DASH true
+#define DOT false
+
 
 int fail = 0;
 
@@ -134,6 +146,14 @@ void processChars_test()
 	test(morseOutput == 1);
 }
 
+void misc_test()
+{
+	cout << "misc_test" << endl;
+
+	uint8_t ocr = F_CPU / 16384 * DASH_THRESHOLD; // set output compare register
+	test(ocr = 163);
+}
+
 int main()
 {
 	testMCodes();	
@@ -141,6 +161,7 @@ int main()
 	toMorse_test();
 	getMatchingInput_test();
 	processChars_test();
+	misc_test();
 	cout << endl << "FAILURES: " << fail << endl << endl;
 	return 0;
 }
