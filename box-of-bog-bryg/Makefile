@@ -2,8 +2,8 @@ MCU = attiny84
 
 COLOUR_TRIPLET = redTriplet
 
-# clock fuse: internal 8MHz osc
-LFUSE = 0x62
+# clock fuse: external 16MHz crystal
+LFUSE = 0xff
 F_CPU = 8000000
 
 PSRC = main.cpp
