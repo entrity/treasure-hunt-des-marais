@@ -8,9 +8,14 @@ SRC = \
 	../colour-triplets.c \
 	main.c
 
+PSRC = 
+
 EXTRAINCDIRS = .. ../usart
 
 NO_ARDUINO = 1
+
+# clock fuse: 16MHz external crystal
+LFUSE = 0xff
 
 include /d/dev/avr/treasure-hunt-2013/MakefileBase.makefile
 

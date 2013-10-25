@@ -6,13 +6,13 @@ Solenoid pin is PORTB 4
 
 #define F_CPU 8000000L
 
+#define SOLENOID_PIN 4
+#define SUCCESS_N 5 // the requisite number of successes to open the box
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
 #include <util/delay.h>
-
-#define SOLENOID_PIN 4
-#define SUCCESS_N 5 // the requisite number of successes to open the box
 
 char ledIndex, // which of the led pins is active
 	successCount = 0; // how many good button clicks have been logged in a row
