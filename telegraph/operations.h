@@ -1,7 +1,6 @@
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 
-#include "definitions.h"
 #include "morse_code.h"
 #include "main.h"
 
@@ -33,7 +32,7 @@ inline void processChars()
 	int i = getMatchingInput();
 	if (i < 0) return;
 	if (i == 0)
-		activateSolendoid();
+		activateSolenoid();
 	else
 		outputMorse(i);
 	reset();

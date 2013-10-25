@@ -1,7 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-void activateSolendoid();
+void activateSolenoid();
 
 void outputMorse(int i);
 

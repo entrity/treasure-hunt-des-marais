@@ -1,7 +1,15 @@
 #include <avr/io>
 #include <avr/delay>
 
-#include "definitions.h"
+#define MORSE_BUFFER_LEN 10		// how many dot/dash to remember from trigger
+#define CHAR_BUFFER_LEN 30		// how many chars to remember from trigger
+#define DASH_THRESHOLD 333 // ms that distinguishes dot from dash
+#define TRIGGER_PIN PB3
+#define SOLENDOID_PIN
+#define DASH true
+#define DOT false
+#define MIN(a,b) { return a < b ? a : b; }
+
 #include "main.h"
 #include "../delay-8mhz.h"
 #include "morse_code.h"
@@ -62,8 +70,10 @@ ISR()
 }
 
 void activateSolendoid()
-{
-
+{	
+	PORTB |= (1<<SOLENOID_PIN);
+	_delay_ms(3000);
+	PORTB &= ~(1<<SOLENOID_PIN);
 }
 
 void outputMorse(int i)

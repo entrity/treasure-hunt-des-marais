@@ -6,9 +6,25 @@
 #include <iostream>
 using namespace std;
 
+#define NO_MORSE -2
+
 int fail = 0;
+
 char * charBuffer_p;
 uint8_t charBuffer_i;
+bool solenoid;
+int morseOutput;
+mCode_t morseBuffer;
+
+inline void resetTest()
+{
+	solenoid = false;
+	morseOutput = NO_MORSE;
+}
+
+inline void activateSolenoid() {	solenoid = true; }
+
+inline void outputMorse(int i) { morseOutput = i; }
 
 void test(bool b)
 {
@@ -93,12 +109,38 @@ void getMatchingInput_test()
 	test(getMatchingInput() == 1);
 }
 
+void processChars_test()
+{
+	cout << "processChars_test" << endl;
+
+	char a[] = "july";
+	char b[] = "foo this matches none";
+	char c[] = "dew";
+
+	charBuffer_p = a;
+	charBuffer_i = strlen(a);
+	resetTest(); processChars();
+	test(solenoid == true);
+	test(morseOutput == NO_MORSE);
+	charBuffer_p = b;
+	charBuffer_i = strlen(b);
+	resetTest(); processChars();
+	test(solenoid == false);
+	test(morseOutput == NO_MORSE);
+	charBuffer_p = c;
+	charBuffer_i = strlen(c);
+	resetTest(); processChars();
+	test(solenoid == false);
+	test(morseOutput == 1);
+}
+
 int main()
 {
 	testMCodes();	
 	test_InterpretMorse();
 	toMorse_test();
 	getMatchingInput_test();
-	cout << "FAILURES: " << fail << endl;
+	processChars_test();
+	cout << endl << "FAILURES: " << fail << endl << endl;
 	return 0;
 }
