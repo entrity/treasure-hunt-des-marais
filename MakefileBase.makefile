@@ -364,6 +364,10 @@ program: $(TARGET).hex $(TARGET).eep
 clockfuse:
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -U lfuse:w:$(LFUSE):m -b $(BAUDRATE) -vvvv
 
+# Read current values of fuses, write them to .txt files
+readfuses:
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -U hfuse:r:high.txt:h -U lfuse:r:low.txt:h -U efuse:r:extended.txt:h
+
 arduino_fuses:
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -U lfuse:w:0xff:m -U hfuse:w:0xde:m -U efuse:w:0x05:m -b $(BAUDRATE) -vvvv
 
