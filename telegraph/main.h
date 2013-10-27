@@ -4,5 +4,6 @@
 void activateSolenoid();
 
 void outputMorse(int i);
+void outputMorseChar(char c);
 
 #endif

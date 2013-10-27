@@ -10,17 +10,22 @@
 	PB4 = solenoid pin
 */
 
-#define PB5 ERROR // we don't want to ever touch this pin. It is RESET
 #define MORSE_BUFFER_LEN 10		// how many dot/dash to remember from trigger
 #define CHAR_BUFFER_LEN 30		// how many chars to remember from trigger
-#define DASH_THRESHOLD 333 // ms that distinguishes dot from dash
+/* duration of morse entities in milliseconds */
+#define DOT_MS 200
+#define DASH_MS (DOT_MS * 3)
+#define WORD_BREAK_MS (DOT_MS * 7)
+#define DASH_THRESHOLD 500 // ms that distinguishes dot from dash
+/* morse entities (values for bool value) */
+#define DASH true
+#define DOT false
+/* pin designations */
+#define PB5 ERROR // we don't want to ever touch this pin. It is RESET
 #define RESET_PIN PCINT1
 #define TRIGGER_PIN PB2
 #define PIEZO_PIN PB3
 #define SOLENOID_PIN PB4
-#define DASH true
-#define DOT false
-#define MIN(a,b) { return a < b ? a : b; }
 
 #include "main.h"
 #include "../delay-8mhz.h"
@@ -39,6 +44,11 @@ inline void startTimer()
 {
 	TCNT1 = 0; // clear timer/counter
 	TIMSK = (1<<OCIE1A); // interrupt on overflow
+}
+inline void togglePiezoPin()
+{
+	if (PINB & (1<<PIEZO_PIN)) 	{PORTB &= ~(1<<PIEZO_PIN);}
+	else 												{PORTB |= (1<<PIEZO_PIN);}
 }
 
 int main()
@@ -104,7 +114,27 @@ void activateSolenoid()
 	PORTB &= ~(1<<SOLENOID_PIN);
 }
 
-void outputMorse(int i)
+void outputMorse(int outputIndex)
 {
-// todo
+	char * text = outputs[outputIndex];
+	// process each character in message
+	for (int i = 0; i < strlen(text); i ++) {
+		char c = text[i];
+		if (c == ' ') { _delay_ms(WORD_BREAK_MS); }
+		else { outputMorseChar(c); }
+	}
+}
+
+void outputMorseChar(char c)
+{
+	mCode_t * charCode = toMorse(c);
+	for (int i = 0; i < charCode->n; i++) {
+		// output tone
+		int ms = (charCode->code[i] == DASH) ? DASH_MS : DOT_MS;
+		for (int tick = 0; tick < ms; tick++) { togglePiezoPin(); _delay_ms(1); }
+		// pause for length of dot between signals
+		_delay_ms(DOT_MS);
+	}
+	// pause for length of dash at end of char
+	_delay_ms(DASH_MS);
 }

@@ -10,8 +10,8 @@
 
 typedef struct {
 	char c;
-	bool code[5];
-	uint8_t n;
+	bool code[5]; // sequence of DOTS and DASHES
+	uint8_t n; // how many DOTS and DASHES are needed for char c (i.e. functional length of this->code)
 } mCode_t;
 
 inline bool mCodesMatch(mCode_t * a, mCode_t * b)
