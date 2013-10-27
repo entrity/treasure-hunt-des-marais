@@ -1,7 +1,11 @@
 #ifndef MORSE_CODE_H
 #define MORSE_CODE_H
 
-#include <cstring>
+#ifdef _USING_GPP
+  #include <cstring>
+#else
+  #include <string.h>
+#endif
 #include <stdint.h>
 
 typedef struct {

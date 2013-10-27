@@ -1,5 +1,6 @@
-#include <avr/io>
-#include <avr/delay>
+#include <avr/io.h>
+#include <avr/delay.h>
+#include <avr/interrupt.h>
 
 /*
 	PINOUT:
@@ -30,7 +31,7 @@
 bool value; // dash or dot
 mCode_t morseBuffer;
 char charBuffer[CHAR_BUFFER_LEN];
-char * charBuffer_p = &charBuffer; // this is in use by operations.h instead of using charBuffer directly so that tests could be written more easily
+char * charBuffer_p = charBuffer; // this is in use by operations.h instead of using charBuffer directly so that tests could be written more easily
 uint8_t charBuffer_i;
 
 inline void disableTimer() { TIMSK = 0; }
@@ -74,7 +75,7 @@ ISR(INT0_vect)
 }
 
 // THRESHOLD seconds after key is pressed or released
-ISR()
+ISR(TIMER1_OVF_vect)
 {
 	// disable timer
 	disableTimer();
@@ -89,7 +90,7 @@ ISR()
 }
 
 // When reset button is pressed
-ISR()
+ISR(PCINT0_vect)
 {
 	reset();
 }
@@ -103,5 +104,5 @@ void activateSolenoid()
 
 void outputMorse(int i)
 {
-todo
+// todo
 }

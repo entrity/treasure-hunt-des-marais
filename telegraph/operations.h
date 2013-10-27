@@ -3,6 +3,7 @@
 
 #include "morse_code.h"
 #include "main.h"
+#include "strings.h"
 
 extern mCode_t morseBuffer;
 extern char * charBuffer_p;
