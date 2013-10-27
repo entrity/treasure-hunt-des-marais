@@ -38,7 +38,7 @@ inline void disableTimer() { TIMSK = 0; }
 inline void startTimer()
 {
 	TCNT1 = 0; // clear timer/counter
-	TIMSK = (1<<TOIE1); // interrupt on overflow
+	TIMSK = (1<<OCIE1A); // interrupt on overflow
 }
 
 int main()
@@ -53,9 +53,11 @@ int main()
 	PCMSK = (1<<RESET_PIN);
 	// configure but do not enable timer interrupt:
 	TCCR1 = (1<<CTC1) | (1<<CS13) | (1<<CS12) | (1<<CS11) | (1<<CS10); // ctc mode, prescaler 16384 ()
-	OCR1C = 163; // F_CPU / 16384 * DASH_THRESHOLD;
+	OCR1A = OCR1C = 244; // F_CPU / 16384 * DASH_THRESHOLD;
+	disableTimer();
 	// enable global interrupts
 	sei();
+
 	// boilerplate
 	while (1) {}
 	return 0;
@@ -75,7 +77,7 @@ ISR(INT0_vect)
 }
 
 // THRESHOLD seconds after key is pressed or released
-ISR(TIMER1_OVF_vect)
+ISR(TIMER1_COMPA_vect)
 {
 	// disable timer
 	disableTimer();
