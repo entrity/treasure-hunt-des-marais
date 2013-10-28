@@ -4,6 +4,8 @@
   PORTD 0 (Digital Pin 2) receives IR input from the TSOP32
 */
 
+#define DEBUG
+
 #define F_CPU 16000000L
 #define SERIAL_RX_PIN 2
 #define SERIAL_TX_PIN 3
@@ -42,6 +44,14 @@ char * requiredColours[] = {
 /* function definitions */
 void handlePacket();
 bool coloursMatch(char * a, char * b);
+inline void printPacket()
+{
+  for (int i; i < PACKET_LENGTH; i++) swSerial.write((uint8_t) rx_packet.body[i]);
+}
+inline void printColour(char * colour)
+{
+  for (int i; i < 3; i ++) swSerial.write((uint8_t) colour[i]);
+}
 
 void setup()
 {
@@ -64,15 +74,25 @@ void loop()
 /*  */
 void handlePacket()
 {
+  #ifdef DEBUG
+    swSerial.write((uint8_t) 99);
+    printPacket();
+  #endif
   // Handle case that packet received is the packet expected
-  if ( packetMatchesColour(&rx_packet, requiredColours[packetMatches_i]) ){
-    packetMatches_i += 1;
-    if (packetMatches_i < 5)
+  if ( packetMatchesColour(&rx_packet, requiredColours[packetMatches_i]) ) {
+    if (packetMatches_i < 4)
       PORTB |= (1 << packetMatches_i);
     else
       PORTD |= (1 << packetMatches_i);
-  } else // packet received was not expected. reset
-    { packetMatches_i = 0; return; }
+    packetMatches_i += 1;
+  }
+  else {
+    #ifdef DEBUG
+      swSerial.write((uint8_t) 111);
+      printColour(requiredColours[packetMatches_i]);
+    #endif
+  }
+
   // activate solenoid if the final colour triplet has been received
   if ( packetMatches_i == REQUIRED_COLOURS_N ) {
     _delay_ms(1000 * 10); // hold solenoid for 10 sec
