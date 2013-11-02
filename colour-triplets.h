@@ -7,10 +7,11 @@ extern char greenTriplet[];
 extern char blueTriplet[];
 extern char yellowTriplet[];
 extern char orangeTriplet[];
+extern char violetTriplet[];
 
 extern char * colourTriplets[];
 
-#define COLOUR_TRIPLET_N 6
+#define COLOUR_TRIPLET_N 7
 
 enum {
   WHITE,
