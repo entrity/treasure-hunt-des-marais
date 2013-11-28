@@ -10,12 +10,13 @@
 #include "sounds/blue-song.c"
 #include "sounds/yellow-song.c"
 #include "sounds/orange-song.c"
+#include "sounds/violet-song.c"
 
 // build song pointers array for songbank
-MjMidi::Song * songPointers[] = { &red_song, &green_song, &blue_song, &yellow_song, &orange_song };
+MjMidi::Song * songPointers[] = { &red_song, &green_song, &blue_song, &yellow_song, &orange_song, &violet_song };
 
 // build song bank
-MjMidi::SongBank songBank(&songPointers[0], SONG_COUNT);
+MjMidi::SongBank songBank(&songPointers[0], COLOUR_TRIPLET_N-1);
 
 /* Set callbacks for songbank and songs */
 void setupSongHandling()
@@ -28,6 +29,7 @@ void setupSongHandling()
   blue_song.setCallbacks( cb_blueSongComplete, NULL );
   yellow_song.setCallbacks( cb_yellowSongComplete, NULL );
   orange_song.setCallbacks( cb_orangeSongComplete, NULL );
+  violet_song.setCallbacks( cb_violetSongComplete, NULL );
 }
 
 /* Send data to song bank */
@@ -46,3 +48,4 @@ defineSongCompletionCallback(green, GREEN)
 defineSongCompletionCallback(blue, BLUE)
 defineSongCompletionCallback(yellow, YELLOW)
 defineSongCompletionCallback(orange, ORANGE)
+defineSongCompletionCallback(violet, VIOLET)

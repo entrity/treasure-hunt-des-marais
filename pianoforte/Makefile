@@ -14,7 +14,6 @@ PSRC = \
 	main.cpp
 
 SRC = \
-	../colour-triplets.c
 
 ARDLIBS = SoftwareSerial
 

@@ -1,8 +1,41 @@
+/*
+  
+  === ATMEGA328 I/O ===
+  PB0: status LED 7 (WHITE)
+  PB1: IR LED + (carrier wave)
+  PB2: status LED 1 (YELLOW)
+  PB3: status LED 2 (BLUE)
+  PB4: status LED 3 (GREEN)
+  PB5: status LED 4 (RED)
+  PB6: 16MHz crystal
+  PB7: 16MHz crystal
+  PC0: 
+  PC1: 
+  PC2: 
+  PC3: 
+  PC4: 
+  PC5: 
+  PC6: RESET
+  PD0: 
+  PD1: IR LED - (TX)
+  PD2: LTV 817C Optoisolator cathode (MIDI in)
+  PD3: push button to +5V for manual colour change
+  PD4: 
+  PD5: status LED 5 (ORANGE)
+  PD6: status LED 6 (VIOLET)
+  PD7: 
+
+*/
+
+
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include <util/delay.h>
 #include "../2013-common.h"
-#include "../colour-triplets.h"
+extern "C" {
+  #include "../colour-triplets.h"
+  #include "../colour-triplets.c"
+}
 #include "song-handling.h"
 #include "main.h"
 #include <midi-listener.h>
@@ -10,9 +43,10 @@
 
 SoftwareSerial mySerial(2,NULL); // input from midi keyboard
 MidiListener midiListener(mySerial, cb_noteOn, cb_noteOff); // input from midi keyboard
-uint8_t outgoingPacket[5];
+char outgoingPacket[5];
 void buttonClicked();
 uint8_t outgoingPacketOverrideIndex = WHITE;
+bool packetChanged = false;
 
 void setup()
 {
@@ -30,6 +64,14 @@ void setup()
   DDRD |= (1<<5)|(1<<6);
   /* start 38KHz carrier wave for infrared TX */
   init_ir_modulator();
+#ifdef _DEBUG
+  for (int i=0; i < COLOUR_TRIPLET_N; i++){
+    char * p_triplet = colourTriplets[i];
+    for (int j=0; j < 3; j++)
+      Serial.println((unsigned int) p_triplet[j]);
+    Serial.println(99);
+  }
+#endif
 }
 
 void loop()
@@ -41,6 +83,11 @@ void loop()
     - register a note success for one or more songs but fire no callback
     */
   midiListener.poll();
+  /* handle change of packet in case of button interrupt */
+  if (packetChanged) {
+    packetChanged = false;
+    setOutgoingPacket(outgoingPacketOverrideIndex);
+  }
   // remember 10ms delay between bytes? packets?
   transmitPacket();
   _delay_ms(80);
@@ -61,8 +108,11 @@ void setOutgoingPacket(uint8_t tripletIndex)
   /* diagnostic */
 #ifdef _DEBUG
   for (int i = 0; i < 5; i++)
-    Serial.println((int) outgoingPacket[i]);
-  Serial.println("===============");
+    Serial.println((unsigned int) outgoingPacket[i]);
+  Serial.println(77);
+  for (int i = 0; i < 3; i++)
+    Serial.println((unsigned int) p_triplet[i]);
+  Serial.println(88);
 #endif
   // set led
   clearStatusLeds();
@@ -71,11 +121,9 @@ void setOutgoingPacket(uint8_t tripletIndex)
 
 void transmitPacket()
 {
-  for (int i = 0; i < 5; i++)
 #ifdef _DEBUG
-    Serial.println((int) outgoingPacket[i]);
-  Serial.println("===============");
 #else
+  for (int i = 0; i < 5; i++)
     Serial.write(outgoingPacket[i]);
 #endif
 }
@@ -85,5 +133,5 @@ void buttonClicked()
   outgoingPacketOverrideIndex += 1;
   if (outgoingPacketOverrideIndex >= COLOUR_TRIPLET_N)
     outgoingPacketOverrideIndex = 0;
-  setOutgoingPacket(outgoingPacketOverrideIndex);
+  packetChanged = true;
 }

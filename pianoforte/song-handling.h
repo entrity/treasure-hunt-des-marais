@@ -1,8 +1,6 @@
 #ifndef mj_song_handling_h
 #define mj_song_handling_h
 
-#define SONG_COUNT 5
-
 /* Set callbacks for songbank and songs */
 void setupSongHandling();
 
@@ -19,5 +17,6 @@ void cb_greenSongComplete();
 void cb_blueSongComplete();
 void cb_yellowSongComplete();
 void cb_orangeSongComplete();
+void cb_violetSongComplete();
 
 #endif
