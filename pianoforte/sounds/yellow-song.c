@@ -1,6 +1,34 @@
 MjMidi::event yellow_song_midiEvents[] = {
-	{  0,MIDI_NOTE_ON , 67},
-	{480,MIDI_NOTE_OFF, 67},
+	{  0,MIDI_NOTE_ON , 76},
+	{240,MIDI_NOTE_OFF, 76},
+	{  0,MIDI_NOTE_ON , 77},
+	{240,MIDI_NOTE_OFF, 77},
+	{  0,MIDI_NOTE_ON , 79},
+	{240,MIDI_NOTE_OFF, 79},
+	{  0,MIDI_NOTE_ON , 76},
+	{240,MIDI_NOTE_OFF, 76},
+	{  0,MIDI_NOTE_ON , 77},
+	{240,MIDI_NOTE_OFF, 77},
+	{  0,MIDI_NOTE_ON , 79},
+	{240,MIDI_NOTE_OFF, 79},
+	{  0,MIDI_NOTE_ON , 77},
+	{960,MIDI_NOTE_OFF, 77},
+	{  0,MIDI_NOTE_ON , 76},
+	{480,MIDI_NOTE_OFF, 76},
+	{  0,MIDI_NOTE_ON , 74},
+	{240,MIDI_NOTE_OFF, 74},
+	{  0,MIDI_NOTE_ON , 76},
+	{240,MIDI_NOTE_OFF, 76},
+	{  0,MIDI_NOTE_ON , 77},
+	{240,MIDI_NOTE_OFF, 77},
+	{  0,MIDI_NOTE_ON , 74},
+	{240,MIDI_NOTE_OFF, 74},
+	{  0,MIDI_NOTE_ON , 76},
+	{240,MIDI_NOTE_OFF, 76},
+	{  0,MIDI_NOTE_ON , 77},
+	{240,MIDI_NOTE_OFF, 77},
+	{  0,MIDI_NOTE_ON , 76},
+	{1440,MIDI_NOTE_OFF, 76}
 };
 
-MjMidi::Song yellow_song(&yellow_song_midiEvents[0], 2);
+MjMidi::Song yellow_song(&yellow_song_midiEvents[0], 30);
