@@ -367,6 +367,13 @@ clockfuse:
 # Read current values of fuses, write them to .txt files
 readfuses:
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -U hfuse:r:high.txt:h -U lfuse:r:low.txt:h -U efuse:r:extended.txt:h
+	cat low.txt > fuses.txt
+	cat high.txt >> fuses.txt
+	cat extended.txt >> fuses.txt
+	rm low.txt high.txt extended.txt
+
+readeeprom:
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -U eeprom:r:eedump.hex:i
 
 arduino_fuses:
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -U lfuse:w:0xff:m -U hfuse:w:0xde:m -U efuse:w:0x05:m -b $(BAUDRATE) -vvvv
