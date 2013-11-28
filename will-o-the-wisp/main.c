@@ -98,6 +98,9 @@ void write()
 /* Main function */
 int main(void)
 {
+  #ifdef DEBUG
+    int i, j;
+  #endif
   /* set up usart */
   init_usart();
   /* set up interrupt for USART RX */
@@ -114,12 +117,25 @@ int main(void)
   // enable pb0 for writing (for diagnostics)
   DDRB |= (1 << 0);
 
+  // output colourTriplets
+  #ifdef DEBUG
+    for (i=0; i < COLOUR_TRIPLET_N; i++) {
+      for (j=0; j < 3; j++) {
+        usartOut(colourTriplets[i][j]);
+        usartOut(5);
+      }
+      usartOut(99);
+    }
+  #endif
+
   /* loop: receive from USART & update *ValueTarget values */
   while (1) {
     /* Update rgb leds */
     updateLeds();
     /* Transmit packet through USART */
-    write();
+    #ifndef DEBUG
+      write();
+    #endif
     _delay_ms(200);
   }
 }
@@ -145,12 +161,19 @@ bool packetMatchesAnyColourTriplet()
 ISR(USART_RX_vect)
 {
   int i;
+  #ifdef DEBUG
+    char c;
+  #endif
   if (usartInToPacket(&rx_packet,PACKET_HEADER_TO_WILLIAM,true)) {
     if (packetMatchesAnyColourTriplet()) {
       for (i = 1; i < 4; i++)
         tx_packet.body[i] = rx_packet.body[i];
     }
   }
+  #ifdef DEBUG
+    c = UDR0;
+    usartOut(c);
+  #endif
   // PORTB ^= (1 << 0); // diagnostic
 }
 
