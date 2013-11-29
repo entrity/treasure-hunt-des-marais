@@ -1,3 +1,13 @@
+/*
+  === ATtiny85 I/O ===
+  PB0: IR led (blinker)
+  PB1: TSOP382 (IR signal in)
+  PB2: 
+  PB3: 16MHz crystal
+  PB4: 16MHz crystal
+  PB5: RESET
+*/
+
 #include "2013-common.h"
 
 extern "C" {
