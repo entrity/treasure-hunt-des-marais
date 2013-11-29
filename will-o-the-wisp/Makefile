@@ -25,3 +25,7 @@ include /d/dev/avr/treasure-hunt-2013/MakefileBase.makefile
 # main.elf: $(OBJ)
 # 	@echo $(MSG_LINKING) $@
 # 	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS)
+
+test: test.c ../colour-triplets.c
+	gcc test.c ../colour-triplets.c -o a.out -I..
+	./a.out
