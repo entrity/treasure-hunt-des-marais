@@ -6,12 +6,12 @@ char yellowTriplet[]  = {255, 140,  0};
 char orangeTriplet[]  = {200, 20,  0};
 char violetTriplet[]  = {180, 0,    120};
 
-char *colourTriplets[] = {
-  &whiteTriplet,
-  &redTriplet,
-  &greenTriplet,
-  &blueTriplet,
-  &yellowTriplet,
-  &orangeTriplet,
-  &violetTriplet
- };
+char * colourTriplets[] = {
+  whiteTriplet,
+  redTriplet,
+  greenTriplet,
+  blueTriplet,
+  yellowTriplet,
+  orangeTriplet,
+  violetTriplet
+};
