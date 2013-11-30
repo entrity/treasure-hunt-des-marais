@@ -68,8 +68,8 @@ void setup()
   for (int i=0; i < COLOUR_TRIPLET_N; i++){
     char * p_triplet = colourTriplets[i];
     for (int j=0; j < 3; j++)
-      Serial.println((unsigned int) p_triplet[j]);
-    Serial.println(99);
+      Serial.write(p_triplet[j]);
+    Serial.write(9);
   }
 #endif
 }
@@ -108,11 +108,11 @@ void setOutgoingPacket(uint8_t tripletIndex)
   /* diagnostic */
 #ifdef _DEBUG
   for (int i = 0; i < 5; i++)
-    Serial.println((unsigned int) outgoingPacket[i]);
-  Serial.println(77);
+    Serial.write(outgoingPacket[i]);
+  Serial.write(7);
   for (int i = 0; i < 3; i++)
-    Serial.println((unsigned int) p_triplet[i]);
-  Serial.println(88);
+    Serial.write(p_triplet[i]);
+  Serial.write(88);
 #endif
   // set led
   clearStatusLeds();
@@ -121,11 +121,8 @@ void setOutgoingPacket(uint8_t tripletIndex)
 
 void transmitPacket()
 {
-#ifdef _DEBUG
-#else
   for (int i = 0; i < 5; i++)
     Serial.write(outgoingPacket[i]);
-#endif
 }
 
 void buttonClicked()
