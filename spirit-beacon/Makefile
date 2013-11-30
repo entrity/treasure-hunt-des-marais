@@ -1,7 +1,5 @@
 MCU = attiny85
 
-COLOUR_TRIPLET = redTriplet
-
 # clock fuse: 16 mhz crystal
 LFUSE=0xff
 
