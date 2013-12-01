@@ -3,6 +3,9 @@
 #define MIDI_IN Serial2
 #define PACKET_HEADER_TO_WILLIAM 'a'
 #define PACKET_HEADER_FROM_WILLIAM 'A'
+/*
+  Digital Pin 3: button click (external) interrupt
+*/
 
 #include "d:/dev/avr/treasure-hunt-2013/colour-triplets.h"
 #include "d:/dev/avr/treasure-hunt-2013/colour-triplets.c"
@@ -55,7 +58,7 @@ void setup()
   MIDI_IN.begin(MIDI_BAUDRATE); // in from MIDI
   DEBUG.begin(9600); // debugging output
   initCarrierWave();
-  attachInterrupt(1, buttonClicked, FALLING);
+  attachInterrupt(1, buttonClicked, FALLING); // PIN3
   setupSongCallbacks();
   #ifdef DEBUG
     DEBUG.println();
@@ -89,7 +92,7 @@ void loop()
     IR_OUT.write(outgoingPacket[i]);
   // update packet
   if (packetChanged)
-    setOutgoingPacket(outgoingPacketOverrideIndex);
+    { packetChanged = false; setOutgoingPacket(outgoingPacketOverrideIndex); }
   // meaningless delay
   delay(10);
 }
@@ -98,7 +101,6 @@ void loop()
   Sends a packet to William. */
 void setOutgoingPacket(uint8_t tripletIndex)
 {
-  packetChanged = false;
   char * p_triplet = colourTriplets[tripletIndex];
   outgoingPacket[0] = PACKET_HEADER_TO_WILLIAM;
   outgoingPacket[1] = p_triplet[0];
@@ -110,7 +112,7 @@ void setOutgoingPacket(uint8_t tripletIndex)
   /* diagnostic */
   DEBUG.println("setting Outgoing packet:");
   for (int i=0; i < 5; i++) {
-    DEBUG.println((int) outgoingPacket[i]);
+    DEBUG.println((uint8_t) outgoingPacket[i]);
   }
 }
 
@@ -121,6 +123,9 @@ void initCarrierWave()
 
 void buttonClicked()
 {
+  #ifdef DEBUG
+    DEBUG.println("!! button clicked !!");
+  #endif
   outgoingPacketOverrideIndex += 1;
   if (outgoingPacketOverrideIndex >= COLOUR_TRIPLET_N)
     outgoingPacketOverrideIndex = 0;
