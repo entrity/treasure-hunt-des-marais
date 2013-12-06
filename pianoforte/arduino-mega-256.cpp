@@ -1,10 +1,14 @@
 #define DEBUG Serial
 #define IR_OUT Serial1
 #define MIDI_IN Serial2
+#define CARRIER_WAVE_PIN (10)
 #define PACKET_HEADER_TO_WILLIAM 'a'
 #define PACKET_HEADER_FROM_WILLIAM 'A'
 /*
   Digital Pin 3: button click (external) interrupt
+  Digital Pin 10: (OC2A | PB4): carrier wave (LED +)
+  TX1: IR out (LED -)
+  RX2: midi in
 */
 
 #include "d:/dev/avr/treasure-hunt-2013/colour-triplets.h"
@@ -118,7 +122,12 @@ void setOutgoingPacket(uint8_t tripletIndex)
 
 void initCarrierWave()
 {
-
+  pinMode(CARRIER_WAVE_PIN, OUTPUT);
+  // set up Timer 2
+  TCCR2A = _BV (COM2A0) | _BV(WGM21);  // CTC, toggle OC2A on Compare Match
+  TCCR2B = _BV (CS20);   // No prescaler
+  OCR2A =  209;          // compare A register value (210 * clock speed)
+                         //  = 13.125 nS , so frequency is 1 / (2 * 13.125) = 38095
 }
 
 void buttonClicked()
