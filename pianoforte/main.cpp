@@ -48,6 +48,9 @@ void buttonClicked();
 uint8_t outgoingPacketOverrideIndex = WHITE;
 bool packetChanged = false;
 
+#include "midi-song.h"
+extern MjMidi::SongBank songBank;
+
 void setup()
 {
   /* button click interrupt */
@@ -70,6 +73,13 @@ void setup()
     for (int j=0; j < 3; j++)
       Serial.write(p_triplet[j]);
     Serial.write(9);
+  }
+  Serial.write(songBank.n);
+  for (unsigned int i=0; i < songBank.n; i++) {
+    Serial.write(songBank.pp_songs[i]->n);
+    for (int j=0; j < songBank.pp_songs[i]->n; j ++) {
+      Serial.write(songBank.pp_songs[i]->p_events[j].note);
+    }
   }
 #endif
 }
@@ -115,7 +125,8 @@ void setOutgoingPacket(uint8_t tripletIndex)
   Serial.write(88);
 #endif
   // set led
-  clearStatusLeds();
+  PORTB &= ~(0b00111101);
+  PORTD &= ~(0b01100000);
   setStatusLed(tripletIndex);
 }
 
