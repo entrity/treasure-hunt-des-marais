@@ -1,11 +1,13 @@
 #define DEBUG Serial
 #define IR_OUT Serial1
 #define MIDI_IN Serial2
+#define ERR_LED (7)
 #define CARRIER_WAVE_PIN (10)
 #define PACKET_HEADER_TO_WILLIAM 'a'
 #define PACKET_HEADER_FROM_WILLIAM 'A'
 /*
   Digital Pin 3: button click (external) interrupt
+  Digital Pin 7: error LED
   Digital Pin 10: (OC2A | PB4): carrier wave (LED +)
   TX1: IR out (LED -)
   RX2: midi in
@@ -46,7 +48,13 @@ void cb_noteOff(unsigned char note);
 void cb_songBankFailure();
 // declare callbacks for individual songs
 #define defineSongCompletionCallback(colour, COLOUR) void cb_##colour##SongComplete() { setOutgoingPacket(COLOUR); }
-void cb_songBankFailure() { setOutgoingPacket(WHITE); }
+void cb_songBankFailure()
+{
+  setOutgoingPacket(WHITE);
+  digitalWrite(ERR_LED, HIGH);
+  delay(300);
+  digitalWrite(ERR_LED, LOW);
+}
 defineSongCompletionCallback(red, RED)
 defineSongCompletionCallback(green, GREEN)
 defineSongCompletionCallback(blue, BLUE)
@@ -64,6 +72,7 @@ void setup()
   initCarrierWave();
   attachInterrupt(1, buttonClicked, FALLING); // PIN3
   setupSongCallbacks();
+  pinMode(ERR_LED, OUTPUT);
   #ifdef DEBUG
     DEBUG.println();
     DEBUG.print((int) songBank.n);
