@@ -1,5 +1,5 @@
-#ifndef SERIAL_MOCK_H
-#define SERIAL_MOCK_H
+#ifndef ARDUINO_H
+#define ARDUINO_H
 
 #include <cstddef>
 #include <stdint.h>
@@ -26,4 +26,5 @@ class SerialC : public Stream
 
 extern SerialC Serial;
 extern SerialC mySerial;
+
 #endif

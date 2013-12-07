@@ -23,3 +23,8 @@ ARDLIBS = SoftwareSerial
 # LDFLAGS = -v 
 
 include /d/dev/avr/treasure-hunt-2013/MakefileBase.makefile
+
+TEST_SRCS = test.cpp song-handling.cpp ../test/Arduino.cpp $(MIDI_DIR)/midi-song.cpp $(MIDI_DIR)/midi-listener.cpp
+test: $(TEST_SRCS)
+	g++ -I.. -I$(MIDI_DIR) -I../test $(TEST_SRCS) -o a.out
+	./a.out

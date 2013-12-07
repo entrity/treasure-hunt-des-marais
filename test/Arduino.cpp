@@ -1,4 +1,4 @@
-#include "serial-mock.h"
+#include "Arduino.h"
 SerialC Serial;
 SerialC mySerial;
 
