@@ -80,6 +80,7 @@ namespace MjMidi
       p_events[i].complete = false;
     }
     this->i = 0;
+    updateInstant();
   }
 
   void Song::setCallbacks(void(*completionCallback)(void), void(*failureCallback)(void))
