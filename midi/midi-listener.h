@@ -24,6 +24,7 @@
 
 class MidiListener
 {
+public:
 	Stream * p_input; // the HardwareSerial or SoftwareSerial where MidiListener gets MIDI input
 	uint8_t
 		action, // holds the first byte of a MIDI signal
@@ -38,7 +39,6 @@ class MidiListener
 	/* Callback fired when the Serial provides MidiListener with the packet's 3rd byte */
 	void handleVolume(uint8_t byte);
 
-public:
 
 	/* Constructor */
 	MidiListener(

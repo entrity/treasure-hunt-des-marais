@@ -19,33 +19,20 @@ namespace MjMidi
     song shall be reset. */
   bool Song::attempt(uint8_t action, uint8_t note)
   {
-    bool songIsCompleteSoFar = true;
     bool success = false;
-    unsigned int firstIndexInInstant = this->i;
-    unsigned int i;
-    // loop through subsequent events in this song, breaking when there is an offset or song end
-    for (i = firstIndexInInstant; i < n; i ++) {
-      // break if the end of the instant is reached:
-      if (p_events[i].offset && i != firstIndexInInstant)
-        { break; }
-      // skip ahead if the current event is already complete
-      if (p_events[i].complete)
+    bool needToCheckCompletion = true;
+    // loop through events in the current instant in this song
+    for (unsigned int i = 0; i < instant_n; i++) {
+      if (instant[i]->complete)
         { continue; }
-      // check whether the given midi event matches the current event in the loop:
-      if ( matchesEvent(&p_events[i], action, note) ) {
-        // successful attempt (i.e. a correct note was received)
+      if ( matchesEvent(instant[i], action, note) ) {
         success = true;
-        // mark the current event complete
-        p_events[i].complete = true;
-        // if no incomplete events have been encountered so far:
-        if (songIsCompleteSoFar) {
-          // update song index 'i'
-          this->i = i + 1;
-          // if the end of the song is reached, mark it complete
-          if (this->i >= this->n) { handleCompletion(); }
-        }
-      } else { // given midi event does not match current event
-        songIsCompleteSoFar = false;
+        instant[i]->complete = true;
+        if (needToCheckCompletion && instantIsComplete() && !updateInstant())
+          { handleCompletion(); }
+        break;
+      } else {
+        needToCheckCompletion = false;
       }
     }
     // end of loop
@@ -54,6 +41,36 @@ namespace MjMidi
       reset();
     }
     return success;
+  }
+
+  bool Song::instantIsComplete()
+  {
+    for (int i=0; i < instant_n; i ++) {
+      if (!instant[i]->complete) { return false; }
+    }
+    return true;
+  }
+
+  bool Song::updateInstant()
+  {
+    // set the instant start to the next incomplete event
+    for (; i < n; i++) {
+      if (!p_events[i].complete) {
+        instant[0] = &p_events[i];
+        instant_n = 1;
+        // add events simultaneous to i to instant
+        for (int j = 1; i+j < n; j++) {
+          if (p_events[i+j].offset)
+            {break;}
+          else {
+            instant_n++;
+            instant[j] = &p_events[i+j];
+          }
+        }
+        return true;
+      }
+    }
+    return false;
   }
 
   /* Clear i. Clear .complete on all events */
@@ -88,6 +105,14 @@ namespace MjMidi
       {completionCallback();}
     if (failure && failureCallback)
       {failureCallback();}
+    #ifdef DEBUG
+      if (failure) {
+        DEBUG.print("MIDI ");
+        DEBUG.print(note);
+        DEBUG.print(":");
+        DEBUG.println(action);
+      }
+    #endif
   }
 
   void SongBank::setCallbacks(void(*completionCallback)(void), void(*failureCallback)(void))
