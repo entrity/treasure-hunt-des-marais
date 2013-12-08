@@ -14,4 +14,6 @@ NO_ARDUINO = 1
 
 EXTRAINCDIRS = attiny85
 
+CFLAGS = -D NO_ARDUINO
+
 include /d/dev/avr/treasure-hunt-2013/MakefileBase.makefile

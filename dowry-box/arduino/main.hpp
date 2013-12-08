@@ -1,8 +1,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#define DEBUG
 #define ADMUX_VR (1<<REFS0) // AVCC with external capacitor at AREF pin
-#define CONTROL_CALLBACK() { Serial.println(readTemp(CONTROL_ADMUX)); Serial.println(readTemp(ICE_ADMUX)); Serial.println(readTemp(FIRE_ADMUX)); }
 
 #define PB0 0
 #define PB1 1

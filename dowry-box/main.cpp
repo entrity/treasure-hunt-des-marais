@@ -10,23 +10,24 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <util/delay.h>
-#if MCU==attiny85
+#ifdef NO_ARDUINO
   #include "main.h"
 #endif
 
-#define CONTROL_ADMUX (0b00000001)
-#define ICE_ADMUX     (0b00000011)
-#define FIRE_ADMUX    (0b00000010)
+#define CTRL_ADMUX    (0)
+#define ICE_ADMUX     (1<<0)|(1<<1)
+#define FIRE_ADMUX    (1<<1)
 #define ICE_SOLENOID  (PB1)
 #define FIRE_SOLENOID (PB0)
 
-uint16_t controlTemp;
+uint16_t controlTemp, iceTemp, fireTemp;
 
 uint16_t readTemp(uint8_t admux)
 {
   uint16_t reading;
   ADMUX  &= 0b11110000; // clear the input channel selection 
   ADMUX  |= admux;      // input channel selection
+  while (ADCSRA & (1<<ADSC)) {} // wait until sc is clear
   ADCSRA |= (1<<ADIF);  // write 1 to clear flag
   ADCSRA |= (1<<ADSC);  // start conversion on ADC
   while(! ADCSRA & (1<<ADIF) ) {} // wait until flag is set
@@ -37,6 +38,8 @@ uint16_t readTemp(uint8_t admux)
 
 int main() 
 {
+  // IO pins
+  DDRB = (1<<ICE_SOLENOID)|(1<<FIRE_SOLENOID);
   // configure ADC
   ADMUX  = ADMUX_VR;   // set voltage reference !!! this differs on attiny85 vs atmega328 !!!
   ADCSRA = 0b10010111; // full prescaler, enable ADC, set ADIF flag to clear it
@@ -44,18 +47,26 @@ int main()
   while (1)
   {
     // read control temperature
-    controlTemp = readTemp(CONTROL_ADMUX);
-    CONTROL_CALLBACK()
+    controlTemp = readTemp(CTRL_ADMUX);
     // read ice temp, set solenoid
-    if (readTemp(ICE_ADMUX) < controlTemp - 2)
+    iceTemp = readTemp(ICE_ADMUX);
+    if (iceTemp < controlTemp - 2)
       { PORTB |= (1<<ICE_SOLENOID); }
     else
       { PORTB &= ~(1<<ICE_SOLENOID); }
     // read fire temp, set solenoid
-    if (readTemp(FIRE_ADMUX) != controlTemp)
+    fireTemp = readTemp(FIRE_ADMUX);
+    if (fireTemp > controlTemp + 2)
       { PORTB |= (1<<FIRE_SOLENOID); }
     else
       { PORTB &= ~(1<<FIRE_SOLENOID); }
+    // debug
+    #ifdef DEBUG
+      Serial.print("i "); Serial.println(iceTemp);
+      Serial.print("f "); Serial.println(fireTemp);
+      Serial.print("c "); Serial.println(controlTemp);
+      Serial.println("====="); delay(1000);
+    #endif
   }
   // return
   return 0;
