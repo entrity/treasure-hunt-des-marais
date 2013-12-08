@@ -1,4 +1,4 @@
-#include "morse_code.h"
+#include "morse_codes.h"
 
 #define MORSE_CODES_N 26
 

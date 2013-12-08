@@ -1,13 +1,13 @@
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 
-#include "morse_code.h"
+#include "morse_codes.h"
 #include "main.h"
 #include "strings.h"
 
 extern mCode_t morseBuffer;
 extern char * charBuffer_p;
-extern uint8_t charBuffer_i;
+extern volatile uint8_t charBuffer_i;
 
 inline void reset()
 {
