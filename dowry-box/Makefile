@@ -12,4 +12,6 @@ SRC =
 
 NO_ARDUINO = 1
 
+EXTRAINCDIRS = attiny85
+
 include /d/dev/avr/treasure-hunt-2013/MakefileBase.makefile
