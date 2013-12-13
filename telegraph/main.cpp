@@ -9,8 +9,7 @@
 	PB4 = solenoid pin
 */
 
-#define MORSE_BUFFER_LEN 10		// how many dot/dash to remember from trigger
-#define CHAR_BUFFER_LEN 30		// how many chars to remember from trigger
+
 /* duration of morse entities in milliseconds */
 #define DOT_MS 200 // used only in output
 #define DASH_MS (DOT_MS * 3) // used only in output
@@ -39,15 +38,17 @@
 	#include "d:/dev/avr/treasure-hunt-2013/telegraph/strings.h"
 #endif
 
+// volatile vars
+volatile char charBuffer[CHAR_BUFFER_LEN];
+volatile mCode_t morseBuffer;
 volatile bool value; // dash or dot
-mCode_t morseBuffer;
-char charBuffer[CHAR_BUFFER_LEN];
-char * charBuffer_p = charBuffer; // this is in use by operations.h instead of using charBuffer directly so that tests could be written more easily
 volatile uint8_t charBuffer_i;
+volatile uint8_t keyOnTimerCt, keyOffTimerCt;
+volatile bool triggerIsPressed;
+volatile bool charBufferUpdated;
 
 int main()
 {
-	reset();	
 	// enable output on solenoid and piezo
 	DDRB = (1<<SOLENOID_PIN) | (1<<PIEZO_PIN);
 	// enable interrupts for pin change and external interrupt
@@ -57,45 +58,65 @@ int main()
 	// configure but do not enable timer interrupt:
 	TCCR1 = (1<<CTC1) | (1<<CS13) | (1<<CS12) | (1<<CS11) | (1<<CS10); // ctc mode, prescaler 16384 ()
 	OCR1A = OCR1C = 244; // F_CPU / 16384 * DASH_THRESHOLD;
-	disableTimer();
+	killTimers();
 	// enable global interrupts
 	sei();
 
 	// boilerplate
-	while (1) {}
+	while (1) {
+		if (charBufferUpdated) {
+			charBufferUpdated = false;
+			processChars();
+		}
+	}
 	return 0;
 }
 
 // When key is pressed or released:
 ISR(INT0_vect)
 {
-	// handle trigger down
-	if (PINB & (1<<TRIGGER_PIN))
-		{value = DOT;} // clear value. if timer does not run out, it shall be DOT, not DASH
-	// handle trigger up
-	else if (morseBuffer.n < MORSE_BUFFER_LEN)
-		{morseBuffer.code[morseBuffer.n++] = value;} // push dot/dash onto buffer
-	// clear and enable timer
-	startTimer();
+	// if key On
+	if (PINB & (1<<TRIGGER_PIN)) {
+		killOffTimer();
+		if (!onTimerIsRunning()) {
+			startOnTimer();
+			value = DOT;
+		}
+	}
+	// if key Off
+	else {
+		startOffTimer();
+	}
 }
 
-// THRESHOLD seconds after key is pressed or released
+// onTimer. fires every 1/100th seconds when in use
+ISR(TIMER0_COMPA_vect)
+{
+	keyOnTimerCt ++;
+	// at 1/3 second
+	if (keyOnTimerCt >= 33 and value == DOT) {
+		value = DASH;
+	}
+}
+
+// offTimer. fires every 1/100th seconds when in use
 ISR(TIMER1_COMPA_vect)
 {
-	// disable timer
-	disableTimer();
-	// if key down, current keypress represents DASH instead of DOT
-	if (PINB & (1<<TRIGGER_PIN))
-		{value = DASH;}
-	// if key up, letter is complete
-	else {
-		charBuffer[charBuffer_i++] = interpretMorse(&morseBuffer); // compute character from morseBuffer
-		morseBuffer.n = 0; // reset morseBuffer
-		processChars(); // check & handle match
+	keyOffTimerCt ++;
+	// at 1/10th second: validate previous keyOn as key event
+	if (keyOffTimerCt >= 10 && onTimerIsRunning()) {
+		killOnTimer();
+		pushMorseBuffer(value);
+		#if DEBUG
+			morseFlag = true;
+		#endif
 	}
-	#ifdef DEBUG
-		timerFlag = true;
-	#endif
+	// at 1/2 second: validate this as char break
+	if (keyOffTimerCt >= 50) {
+		killOffTimer();
+		char c = interpretMorseBuffer();
+		pushCharBuffer(c);
+	}
 }
 
 void outputMorse(int outputIndex)

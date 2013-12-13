@@ -4,24 +4,40 @@
 #include "morse_codes.h"
 #include "main.h"
 #include "strings.h"
+#include "pin_changes.h"
 
-extern mCode_t morseBuffer;
-extern char * charBuffer_p;
-extern volatile uint8_t charBuffer_i;
-
-inline void reset()
+inline void pushMorseBuffer(bool value)
 {
-	morseBuffer.n = 0;
-	charBuffer_i = 0;
+	morseBuffer.code[morseBuffer.n] = value;
+	if (morseBuffer.n < MORSE_BUFFER_LEN) {morseBuffer.n ++;}
 }
 
-/* Iterate through all inputs[]. If one matches charBuffer, return its index. Else,
-	return -1. */
-inline int getMatchingInput()
+/* Evaluate contents of morseBuffer. Push it onto charBuffer.
+	Clear morseBuffer. Set charBufferUpdated flag */
+inline void pushCharBuffer(char c)
 {
-	for (int i=0; i < INPUTS_N; i++) {
-		if ( strlen(inputs[i]) == charBuffer_i && memcmp(inputs[i], charBuffer_p, charBuffer_i) == 0)
-		{ return i; }
+	charBuffer[charBuffer_i] = c;
+	charBuffer_i = (charBuffer_i + 1) % CHAR_BUFFER_LEN;
+	charBufferUpdated = true;
+}
+
+/* Return whether charBuffer matches string at +inputs[i]+ */
+inline bool charBufferMatchesString(char * p_input)
+{
+	uint16_t inputLen = strlen(p_input);
+	uint16_t charBufferOffset = charBuffer_i - inputLen;
+	for (uint16_t o = 0; o < inputLen; o++) {
+		char c = charBuffer[(charBufferOffset + o) % CHAR_BUFFER_LEN];
+		if (p_input[o] != c) { return false; }
+	}
+	return true;
+}
+
+/* Try to match charBuffer against all strings in +inputs+. Return index or -1. */
+inline short findCharBufferMatch()
+{
+	for (uint16_t i=0; i < INPUTS_N; i++) {
+		if (charBufferMatchesString(inputs[i])) { return i; }
 	}
 	return -1;
 }
@@ -30,13 +46,17 @@ inline int getMatchingInput()
 	If a match is found, output the corresponding output */
 inline void processChars()
 {
-	int i = getMatchingInput();
-	if (i < 0) return;
-	if (i == 0)
-		activateSolenoid();
-	else
-		outputMorse(i);
-	reset();
+	short i = findCharBufferMatch();
+	if (i == 0) { activateSolenoid(); }
+	else if (i > 0) { outputMorse(i); }
+}
+
+inline char interpretMorseBuffer()
+{
+	mCode_t morseBufferCopy;
+	memcpy((void *) &morseBufferCopy, (void *) &morseBuffer, sizeof(mCode_t));
+	morseBuffer.n = 0;
+	return interpretMorse(&morseBufferCopy);
 }
 
 #endif

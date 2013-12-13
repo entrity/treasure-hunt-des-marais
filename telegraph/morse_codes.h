@@ -8,9 +8,11 @@
 #endif
 #include <stdint.h>
 
+#define MORSE_BUFFER_LEN 5
+
 typedef struct {
 	char c;
-	bool code[5]; // sequence of DOTS and DASHES
+	bool code[MORSE_BUFFER_LEN]; // sequence of DOTS and DASHES
 	uint8_t n; // how many DOTS and DASHES are needed for char c (i.e. functional length of this->code)
 } mCode_t;
 
