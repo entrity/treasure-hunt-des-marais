@@ -25,6 +25,7 @@
 #define SOLENOID_PIN PB4
 
 #ifndef USE_ARDUINO
+	#include "timers.h"
 	#include "main.h"
 	#include "../delay-8mhz.h"
 	#include "morse_codes.h"
@@ -49,20 +50,23 @@ volatile bool charBufferUpdated;
 
 int main()
 {
+	/* setup output pins*/
 	// enable output on solenoid and piezo
 	DDRB = (1<<SOLENOID_PIN) | (1<<PIEZO_PIN);
+
+	/* setup telegraph key interrupts*/
 	// enable interrupts for pin change and external interrupt
 	GIMSK = (1<<INT0) | (1<<PCIE);
 	// configure trigger interrupt (INT0) on any change
 	MCUCR = (1<<ISC00);
-	// configure but do not enable timer interrupt:
-	TCCR1 = (1<<CTC1) | (1<<CS13) | (1<<CS12) | (1<<CS11) | (1<<CS10); // ctc mode, prescaler 16384 ()
-	OCR1A = OCR1C = 244; // F_CPU / 16384 * DASH_THRESHOLD;
-	killTimers();
+
+	/* configure timers */
+	configureTimers();
+	
 	// enable global interrupts
 	sei();
 
-	// boilerplate
+	/* loop */
 	while (1) {
 		if (charBufferUpdated) {
 			charBufferUpdated = false;

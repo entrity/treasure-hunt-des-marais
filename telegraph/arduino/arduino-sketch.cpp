@@ -61,15 +61,10 @@ inline void killTimers()
   killOffTimer();
 }
 
-void setup()
+inline void configureTimers()
 {
-  // enable output on solenoid and piezo
-  DDRB = (1<<SOLENOID_PIN) | (1<<PIEZO_PIN);
-  // configure trigger interrupt (INT0) on any change
-  EIMSK = (1<<INT0);
-  EICRA = (1<<ISC00);
   // configure but do not enable timer interrupt for keyOff:
-  TCCR1A = 0;
+  TCCR1A = 0; // normal port operation, OC pins disconnected, CTC on OCRA
   TCCR1B = (1<<WGM12); // normal port operation, OC pins disconnected, CTC on OCRA
   TCCR1B |= (1<<CS12) | (1<<CS10); // 1024 prescaler
   OCR1A = (155); // (F_CPU / prescaler * 100) - 1 -- every 1/100th of a sec
@@ -77,6 +72,16 @@ void setup()
   TCCR0A = (1<<WGM01); // normal port, OC disconnected, CTC on OCR0A
   TCCR0B = (1<<CS02) | (1<<CS00); // 1024 prescaler
   OCR0A = (155);
+}
+
+void setup()
+{
+  // enable output on solenoid and piezo
+  DDRB = (1<<SOLENOID_PIN) | (1<<PIEZO_PIN);
+  // configure trigger interrupt (INT0) on any change
+  EIMSK = (1<<INT0);
+  EICRA = (1<<ISC00);
+  configureTimers();
   // disable timers
   killTimers();
   // enable global interrupts

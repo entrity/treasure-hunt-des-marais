@@ -1,14 +1,18 @@
 
 char * inputs[] = {
 	"july",
-	"dew",
-  "a",
-  "c"
+	"iceberg",
+  "footprint",
+  "watermelon",
+  "dew",
+  "x"
 };
 
 char * outputs[] = {
 	"THIS IS DUMMY FOR SOLENDOID",
-	"cast the light of leaf upon",
+	"library",
   "b",
-  "doe fah"
+  "doe fah",
+  "sos",
+  "tea"
 };

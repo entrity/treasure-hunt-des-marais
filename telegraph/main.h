@@ -3,7 +3,6 @@
 
 #include "./morse_codes.h"
 
-#define MORSE_BUFFER_LEN 10   // how many dot/dash to remember from trigger
 #define CHAR_BUFFER_LEN 256    // how many chars to remember from trigger
 
 extern volatile char charBuffer[CHAR_BUFFER_LEN];
