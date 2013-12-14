@@ -3,7 +3,7 @@
 
 #include "./morse_codes.h"
 
-#define CHAR_BUFFER_LEN 256    // how many chars to remember from trigger
+#define CHAR_BUFFER_LEN 10    // how many chars to remember from trigger
 
 extern volatile char charBuffer[CHAR_BUFFER_LEN];
 extern volatile mCode_t morseBuffer;

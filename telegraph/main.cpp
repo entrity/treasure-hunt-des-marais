@@ -14,7 +14,7 @@
 #define DOT_MS 200 // used only in output
 #define DASH_MS (DOT_MS * 3) // used only in output
 #define WORD_BREAK_MS (DOT_MS * 7) // used only in output
-#define DASH_THRESHOLD 500 // ms that distinguishes dot from dash; used only in input
+#define DASH_THRESHOLD 500 // ms that distinguishes dot from dash; used only in for reference
 /* morse entities (values for bool value) */
 #define DASH true
 #define DOT false
@@ -66,10 +66,16 @@ int main()
 	// enable global interrupts
 	sei();
 
+	outputMorseChar('h');
+	outputMorseChar('i');
+
 	/* loop */
 	while (1) {
 		if (charBufferUpdated) {
 			charBufferUpdated = false;
+			#ifdef DEBUG85
+				outputMorseChar(charBuffer[charBuffer_i-1]);
+			#endif
 			processChars();
 		}
 	}
@@ -135,6 +141,9 @@ void outputMorse(int outputIndex)
 		if (c == ' ') { _delay_ms(WORD_BREAK_MS); }
 		else { outputMorseChar(c); }
 	}
+	#ifdef DEBUG
+		Serial.println();
+	#endif
 }
 
 void outputMorseChar(char c)

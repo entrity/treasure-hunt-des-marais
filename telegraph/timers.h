@@ -1,6 +1,8 @@
 #ifndef TIMERS_H
 #define TIMERS_H
 
+#define OCR_VALUE (77) // (77)
+
 extern volatile uint8_t keyOnTimerCt, keyOffTimerCt;
 
 /* onTimer */
@@ -50,12 +52,12 @@ inline void configureTimers()
 {
   /* configure but do not enable timer interrupt for keyOn */
   TCCR0A = (1<<WGM01); // normal port operation, OC pins disconnected, CTC on OCRA
-  TCCR0B = (1<<CS02) | (1<<CS00); // 1024 prescaler
-  OCR0A  = 77; // 100x per second -- (F_CPU / 1024 / 100) - 1
+  TCCR0B = 0b101; // 1024 prescaler
+  OCR0A  = 90; // 100x per second -- (F_CPU / 1024 / 100) - 1
 
   /* configure but do not enable timer interrupt for keyOff */
   TCCR1 =  (1<<CTC1); // normal port operation, OC pins disconnected, CTC on OCRA
-  TCCR1 |= (1<<CS13) | (1<<CS11) | (1<<CS10); // 1024 prescaler
+  TCCR1 |= 0b1001; // 256 prescaler
   OCR1A =  77; // 100x per second -- (F_CPU / 1024 / 100) - 1
 
   /* don't let timers run yet*/
