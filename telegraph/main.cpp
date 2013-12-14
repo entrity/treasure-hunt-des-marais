@@ -93,8 +93,8 @@ ISR(INT0_vect)
 ISR(TIMER0_COMPA_vect)
 {
 	keyOnTimerCt ++;
-	// at 1/3 second
-	if (keyOnTimerCt >= 33 and value == DOT) {
+	// at 1/4 second
+	if (keyOnTimerCt >= 25 and value == DOT) {
 		value = DASH;
 	}
 }
@@ -125,6 +125,9 @@ void outputMorse(int outputIndex)
 	// process each character in message
 	for (int i = 0; i < strlen(text); i ++) {
 		char c = text[i];
+		#ifdef DEBUG
+			Serial.print(c);
+		#endif
 		if (c == ' ') { _delay_ms(WORD_BREAK_MS); }
 		else { outputMorseChar(c); }
 	}

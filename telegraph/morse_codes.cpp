@@ -40,7 +40,7 @@ char interpretMorse(mCode_t * p_data)
 			return morseCodes[i].c;
 		}
 	}
-	return NULL;
+	return 0;
 }
 
 /* Return morse code corresponding to given char */
@@ -51,5 +51,5 @@ mCode_t * toMorse(char c)
 			return &morseCodes[i];
 		}
 	}
-	return NULL;	
+	return NULL;
 }

@@ -39,6 +39,7 @@ int fail = 0;
 volatile char charBuffer[CHAR_BUFFER_LEN];
 volatile uint8_t charBuffer_i;
 volatile mCode_t morseBuffer;
+volatile bool charBufferUpdated;
 
 void setCharBuffer(string s) {
 	memcpy((void *) &charBuffer, s.c_str(), s.length());
@@ -174,11 +175,17 @@ void circularBuffer_test()
 	charBuffer_i = 4;
 	char * s = "arct";
 	test(charBufferMatchesString(s));
+	setCharBuffer("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+	test(charBuffer_i == 36);
+	pushCharBuffer('a');
+	test(charBuffer_i == 37);
+	test(charBuffer[36] == 'a');
 }
 
 void interpretMorseBuffer_test()
 {
 	cout << "interpretMorseBuffer_test" << endl;
+	interpretMorseBuffer(); // reset morseBuffer
 	pushMorseBuffer(DOT);
 	pushMorseBuffer(DOT);
 	pushMorseBuffer(DOT);
