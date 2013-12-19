@@ -1,18 +1,18 @@
 
 char * inputs[] = {
   "july",
-  "a",
+  "footprints",
   "iceberg",
-  "ef",
-  "t",
-  "x"
+  "ton",
+  "watermelon",
+  "dew"
 };
 
 char * outputs[] = {
   "THIS IS DUMMY FOR SOLENDOID",
-  "a",
-  "n",
-  "u",
-  "w",
-  "tea"
+  "opposite five checked catenaries",
+  "four trees without fruit",
+  "once was a mess but now is clean",
+  "rounding up then up then down",
+  "place of make believe"
 };

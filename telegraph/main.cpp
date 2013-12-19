@@ -73,9 +73,8 @@ int main()
 	while (1) {
 		if (charBufferUpdated) {
 			charBufferUpdated = false;
-			#ifdef DEBUG85
-				outputMorseChar(charBuffer[charBuffer_i-1]);
-			#endif
+			if (PINB & (1<<PB0))
+			 { outputMorseChar(charBuffer[charBuffer_i-1]); }
 			processChars();
 		}
 	}
