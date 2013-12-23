@@ -8,6 +8,6 @@ SRC = ../colour-triplets.c ../usart/usart-functions.c
 
 EXTRAINCDIRS = .. ../usart
 
-ARDLIBS = SoftwareSerial
+# ARDLIBS = 
 
 include /d/dev/avr/treasure-hunt-2013/MakefileBase.makefile

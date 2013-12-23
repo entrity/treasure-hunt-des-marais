@@ -1,16 +1,14 @@
-#include "morse_code.h"
-#include "strings.h"
-#include "operations.h"
+
 
 #include <iostream>
 using namespace std;
 
 #define NO_MORSE -2
 
+char PINB, PORTB, PB4, PB3, PB2, PB1, PCINT1;
+
 #define F_CPU 8000000UL
 #define PB5 ERROR // we don't want to ever touch this pin. It is RESET
-#define MORSE_BUFFER_LEN 10		// how many dot/dash to remember from trigger
-#define CHAR_BUFFER_LEN 30		// how many chars to remember from trigger
 #define DASH_THRESHOLD 333 // ms that distinguishes dot from dash
 #define RESET_PIN PCINT1
 #define TRIGGER_PIN PB2
@@ -19,24 +17,40 @@ using namespace std;
 #define DASH true
 #define DOT false
 
+// dummy methods
+void _delay_ms(int x){}
+
+/* mocking pin_changes.h */
+#define PIN_CHANGES_H
+bool solenoid;
+int morseOutput;
+inline void activateSolenoid() { solenoid = true; }
+inline void outputMorse(int i) { morseOutput = i; }
+
+#include "main.h"
+#include "morse_codes.h"
+#include "strings.h"
+#include "operations.h"
 
 int fail = 0;
 
-char * charBuffer_p;
-uint8_t charBuffer_i;
-bool solenoid;
-int morseOutput;
-mCode_t morseBuffer;
+
+// vars from main.cpp
+volatile char charBuffer[CHAR_BUFFER_LEN];
+volatile uint8_t charBuffer_i;
+volatile mCode_t morseBuffer;
+volatile bool charBufferUpdated;
+
+void setCharBuffer(string s) {
+	memcpy((void *) &charBuffer, s.c_str(), s.length());
+	charBuffer_i = s.length();
+}
 
 inline void resetTest()
 {
 	solenoid = false;
 	morseOutput = NO_MORSE;
 }
-
-inline void activateSolenoid() {	solenoid = true; }
-
-inline void outputMorse(int i) { morseOutput = i; }
 
 void test(bool b)
 {
@@ -102,56 +116,102 @@ void toMorse_test()
 	test(p->c == 'd');
 }
 
-void getMatchingInput_test()
+void findCharBufferMatch_test()
 {
-	cout << "getMatchingInput_test" << endl;
+	cout << "findCharBufferMatch_test" << endl;
 
-	char a[] = "july";
-	char b[] = "foo this matches none";
-	char c[] = "dew";
+	string a = "july";
+	string b = "foo thios matches none";
+	string c = "dew";
 	
-	charBuffer_p = a;
-	charBuffer_i = 4;
-	test(getMatchingInput() == 0);
-	charBuffer_p = b;
-	charBuffer_i = strlen(b);
-	test(getMatchingInput() == -1);
-	charBuffer_p = c;
-	charBuffer_i = strlen(c);
-	test(getMatchingInput() == 1);
+	setCharBuffer(a);
+	test(findCharBufferMatch() == 0);
+	setCharBuffer(b);
+	test(findCharBufferMatch() == -1);
+	setCharBuffer(c);
+	test(findCharBufferMatch() == 1);
 }
 
 void processChars_test()
 {
 	cout << "processChars_test" << endl;
 
-	char a[] = "july";
-	char b[] = "foo this matches none";
-	char c[] = "dew";
+	string a = "july";
+	string b = "foo this matches none";
+	string c = "dew";
 
-	charBuffer_p = a;
-	charBuffer_i = strlen(a);
+	resetTest();
+	test(solenoid == false);
+	test(morseOutput == NO_MORSE);
+	setCharBuffer(a);
 	resetTest(); processChars();
 	test(solenoid == true);
 	test(morseOutput == NO_MORSE);
-	charBuffer_p = b;
-	charBuffer_i = strlen(b);
+	setCharBuffer(b);
 	resetTest(); processChars();
 	test(solenoid == false);
 	test(morseOutput == NO_MORSE);
-	charBuffer_p = c;
-	charBuffer_i = strlen(c);
+	setCharBuffer(c);
 	resetTest(); processChars();
 	test(solenoid == false);
 	test(morseOutput == 1);
 }
 
-void misc_test()
+void circularBuffer_test()
 {
-	cout << "misc_test" << endl;
+	cout << "circularBuffer_test" << endl;
+	setCharBuffer("bazqux");
+	test(charBuffer_i == 6);
+	test(charBuffer[charBuffer_i-1]=='x');
+	test(charBufferMatchesString("qux"));
+	test(charBufferMatchesString("zqux"));
+	test(charBufferMatchesString("bazqux"));
+	test( ! charBufferMatchesString("quxr"));
+	test( ! charBufferMatchesString("qrux"));
+	charBuffer[0] = 'a';
+	charBuffer[1] = 'r';
+	charBuffer[2] = 'c';
+	charBuffer[3] = 't';
+	charBuffer_i = 4;
+	char * s = "arct";
+	test(charBufferMatchesString(s));
+	setCharBuffer("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+	test(charBuffer_i == 36);
+	pushCharBuffer('a');
+	test(charBuffer_i == 37);
+	test(charBuffer[36] == 'a');
+}
 
-	uint8_t ocr = F_CPU / 16384 * DASH_THRESHOLD; // set output compare register
-	test(ocr = 163);
+void interpretMorseBuffer_test()
+{
+	cout << "interpretMorseBuffer_test" << endl;
+	interpretMorseBuffer(); // reset morseBuffer
+	pushMorseBuffer(DOT);
+	pushMorseBuffer(DOT);
+	pushMorseBuffer(DOT);
+	test(interpretMorseBuffer() == 's');
+	pushMorseBuffer(DOT);
+	pushMorseBuffer(DASH);
+	test(interpretMorseBuffer() == 'a');
+	pushMorseBuffer(DOT);
+	test(interpretMorseBuffer() == 'e');
+	pushMorseBuffer(DASH);
+	pushMorseBuffer(DOT);
+	pushMorseBuffer(DASH);
+	pushMorseBuffer(DASH);
+	test(interpretMorseBuffer() == 'y');
+}
+
+void pushMorseBuffer_test()
+{
+	cout << "pushMorseBuffer_test" << endl;
+	test(morseBuffer.n == 0);
+	pushMorseBuffer(DOT);
+	test(morseBuffer.n == 1);
+	test(morseBuffer.code[morseBuffer.n-1] == DOT);
+	pushMorseBuffer(DASH);
+	test(morseBuffer.n == 2);
+	test(morseBuffer.code[morseBuffer.n-1] == DASH);
 }
 
 int main()
@@ -159,9 +219,11 @@ int main()
 	testMCodes();	
 	test_InterpretMorse();
 	toMorse_test();
-	getMatchingInput_test();
+	findCharBufferMatch_test();
 	processChars_test();
-	misc_test();
+	circularBuffer_test();
+	interpretMorseBuffer_test();
+	pushMorseBuffer_test();
 	cout << endl << "FAILURES: " << fail << endl << endl;
 	return 0;
 }

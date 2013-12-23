@@ -1,10 +1,10 @@
 /*
   PORTB 3:0 controls 4 LEDs
   PORTD 7:4 controls 3 LEDs and the solenoid
-  PORTD 0 (Digital Pin 2) receives IR input from the TSOP32
+  PORTD 2 (Digital Pin 2) receives IR input from the TSOP32
 */
 
-#define DEBUG
+// #define DEBUG
 
 #define F_CPU 16000000L
 #define SERIAL_RX_PIN 2
@@ -13,7 +13,6 @@
 #define COLOUR_TRIPLET_SIZE 3
 
 #include <Arduino.h>
-#include <SoftwareSerial.h>
 
 extern "C" {
   #include "usart-functions.h"
@@ -24,10 +23,9 @@ extern "C" {
 #include <avr/io.h>
 
 /* Settings for serial RX  */
-SoftwareSerial swSerial(SERIAL_RX_PIN, SERIAL_TX_PIN);
 packet_t rx_packet;
-char usartIn() { return swSerial.read(); }
-char usartInWithoutCheck() { return swSerial.read(); }
+char usartIn() { return Serial.read(); }
+char usartInWithoutCheck() { return Serial.read(); }
 
 /* Settings for colour expectations */
 uint8_t packetMatches_i = 0;
@@ -44,30 +42,33 @@ char * requiredColours[] = {
 /* function definitions */
 void handlePacket();
 bool coloursMatch(char * a, char * b);
-inline void printPacket()
+inline void printPacket() // for debugging
 {
-  for (int i; i < PACKET_LENGTH; i++) swSerial.write((uint8_t) rx_packet.body[i]);
+  for (int i; i < PACKET_LENGTH; i++) Serial.println((uint8_t) rx_packet.body[i]);
 }
-inline void printColour(char * colour)
+inline void printColour(char * colour) // for debugging
 {
-  for (int i; i < 3; i ++) swSerial.write((uint8_t) colour[i]);
+  for (int i; i < 3; i ++) Serial.println((uint8_t) colour[i]);
 }
 
 void setup()
 {
-  DDRB = 0x0f;
+  DDRB = 0x0f | (1<<PB5);
   DDRD = 0xf0;
-  DDRD &= ~(1<<PD0);
-  DDRD |= (1<<PD1)|(1<<PD3);
-  swSerial.begin(WILLIAM_BAUDRATE);
+  Serial.begin(WILLIAM_BAUDRATE);
+  Serial.println("+");
+  printColour(requiredColours[packetMatches_i]);
 }
 
 void loop()
 {
   /* read serial, handle packet (if any) */
-  while (swSerial.available()) {
+  while (Serial.available()) {
     if (usartInToPacket(&rx_packet, PACKET_HEADER_FROM_WILLIAM, true))
-      { handlePacket(); }
+      { 
+        Serial.print('.');
+        handlePacket();
+      }
   }
 }
 
@@ -75,11 +76,15 @@ void loop()
 void handlePacket()
 {
   #ifdef DEBUG
-    swSerial.write((uint8_t) 99);
-    printPacket();
+    // Serial.write((uint8_t) 99);
+    // printPacket();
   #endif
   // Handle case that packet received is the packet expected
   if ( packetMatchesColour(&rx_packet, requiredColours[packetMatches_i]) ) {
+    #ifdef DEBUG
+      Serial.println("*");
+      printColour(requiredColours[packetMatches_i]);
+    #endif
     if (packetMatches_i < 4)
       PORTB |= (1 << packetMatches_i);
     else
@@ -88,14 +93,13 @@ void handlePacket()
   }
   else {
     #ifdef DEBUG
-      swSerial.write((uint8_t) 111);
-      printColour(requiredColours[packetMatches_i]);
-    #endif
+    #endif 
   }
 
   // activate solenoid if the final colour triplet has been received
   if ( packetMatches_i == REQUIRED_COLOURS_N ) {
-    _delay_ms(1000 * 10); // hold solenoid for 10 sec
+    PORTB |= (1<<PB5);
+    _delay_ms(1000 * 20); // hold solenoid for 10 sec
     PORTB &= 0xf0; // deactivate all LEDs and solenoid
     PORTD &= 0x0f; // deactivate all LEDs and solenoid
     packetMatches_i = 0; // reset counter

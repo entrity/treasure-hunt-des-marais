@@ -1,7 +1,5 @@
 MCU = attiny85
 
-COLOUR_TRIPLET = redTriplet
-
 # clock fuse: 8 MHz internal osc
 LFUSE=0x62
 F_CPU = 8000000

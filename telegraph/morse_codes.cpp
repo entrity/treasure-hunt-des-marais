@@ -32,22 +32,24 @@ mCode_t morseCodes[] = {
 };
 
 
-char interpretMorse(mCode_t * data)
+/* Return char corresponding to contents of morseBuffer */
+char interpretMorse(mCode_t * p_data)
 {
 	for (int i = 0; i < MORSE_CODES_N; i++) {
-		if ( mCodesMatch(&morseCodes[i], data) ) {
+		if ( mCodesMatch(&morseCodes[i], p_data) ) {
 			return morseCodes[i].c;
 		}
 	}
-	return NULL;
+	return 0;
 }
 
- mCode_t * toMorse(char c)
+/* Return morse code corresponding to given char */
+mCode_t * toMorse(char c)
 {
 	for (int i = 0; i < MORSE_CODES_N; i++) {
 		if (morseCodes[i].c == c) {
 			return &morseCodes[i];
 		}
 	}
-	return NULL;	
+	return NULL;
 }
