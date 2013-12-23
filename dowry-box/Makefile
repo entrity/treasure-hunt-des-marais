@@ -17,3 +17,7 @@ EXTRAINCDIRS = attiny85
 CFLAGS = -D NO_ARDUINO
 
 include /d/dev/avr/treasure-hunt-2013/MakefileBase.makefile
+
+test: main.cpp test.cpp
+	g++ -o a.out test.cpp
+	./a.out

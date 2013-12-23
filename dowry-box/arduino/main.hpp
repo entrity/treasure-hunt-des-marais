@@ -9,6 +9,9 @@
 #define PB2 2
 #define main foo
 
+#include <Arduino.h>
 int foo();
+void setup() { Serial.begin(9600); foo(); }
+void loop() {}
 
 #endif
